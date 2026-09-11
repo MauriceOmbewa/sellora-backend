@@ -1,0 +1,38 @@
+# Core
+Django==5.1.9
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.1
+
+# Database
+psycopg2-binary==2.9.10
+
+# Environment
+django-environ==0.11.2
+
+# API utilities
+django-cors-headers==4.4.0
+django-filter==24.3
+drf-spectacular==0.27.2
+
+# Authentication
+google-auth==2.35.0
+google-auth-httplib2==0.2.0
+PyJWT==2.13.0
+
+# Image handling
+Pillow==11.0.0
+
+# Async tasks
+celery==5.4.0
+redis==5.1.1
+django-redis==5.4.0
+
+# Slugs
+python-slugify==8.0.4
+
+# Storage
+django-storages==1.14.4
+boto3==1.35.71
+
+# Utilities
+python-dateutil==2.9.0.post0

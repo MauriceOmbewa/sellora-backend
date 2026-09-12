@@ -275,23 +275,66 @@ if USE_S3:
 # ─── API Documentation (drf-spectacular) ──────────────────────────────────────
 SPECTACULAR_SETTINGS = {
     "TITLE": "Sellora API",
-    "DESCRIPTION": "Backend API for the Sellora SaaS platform",
+    "DESCRIPTION": """
+## Sellora Backend API
+
+Multi-tenant SaaS backend for the Sellora platform.
+
+### Authentication
+All dashboard endpoints require a Bearer JWT token:
+```
+Authorization: Bearer <access_token>
+```
+
+Obtain a token by completing the Google OAuth flow:
+1. Navigate to `GET /api/v1/auth/google/?next=web` in a browser
+2. Complete Google sign-in
+3. Collect `access` and `refresh` tokens from the redirect URL
+
+### Multi-tenancy
+All business-scoped endpoints follow the pattern:
+```
+/api/v1/businesses/{business_id}/<resource>/
+```
+
+### Public Storefront API
+Routes under `/api/v1/store/{slug}/` require no authentication.
+Only published storefronts (`is_published=true`) are accessible.
+
+### Currency
+All monetary amounts are in **KES (Kenyan Shillings)**.
+""",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": "/api/v1/",
+    # Suppress the APIView serializer guessing warnings — we use @extend_schema per-endpoint
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+    ],
+    "ENUM_GENERATE_CHOICE_DESCRIPTION": True,
+    # Auto-tag views based on their URL prefix
+    "PREPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.preprocess_exclude_path_format",
+    ],
+    # Generate schema from URL structure when serializer can't be guessed
+    "SERVE_AUTHENTICATION": None,
+    "DISABLE_ERRORS_AND_WARNINGS": True,
     "TAGS": [
-        {"name": "auth", "description": "Authentication (Google OAuth + JWT)"},
-        {"name": "businesses", "description": "Business management"},
-        {"name": "products", "description": "Product catalogue"},
+        {"name": "auth", "description": "Authentication — Google OAuth 2.0 + JWT"},
+        {"name": "businesses", "description": "Business management — CRUD, settings, storefront config"},
+        {"name": "products", "description": "Product catalogue — CRUD, availability, stock"},
         {"name": "categories", "description": "Product categories"},
-        {"name": "inventory", "description": "Stock management"},
-        {"name": "orders", "description": "Order processing"},
-        {"name": "customers", "description": "Customer management"},
-        {"name": "finances", "description": "Financial reporting"},
-        {"name": "analytics", "description": "Business analytics"},
-        {"name": "messages", "description": "Customer inquiries"},
-        {"name": "storefront", "description": "Public storefront API"},
-        {"name": "uploads", "description": "File uploads"},
+        {"name": "inventory", "description": "Stock management and adjustment audit log"},
+        {"name": "orders", "description": "Order processing — state machine, timeline"},
+        {"name": "customers", "description": "Customer records — auto-created from orders"},
+        {"name": "finances", "description": "Expenses and P&L financial summary"},
+        {"name": "analytics", "description": "Business analytics — KPIs, time-series, rankings"},
+        {"name": "messages", "description": "Customer inquiries from the storefront contact form"},
+        {"name": "storefront", "description": "Public storefront API — no auth required"},
+        {"name": "uploads", "description": "File upload — images for products, logos, hero"},
+        {"name": "plans", "description": "Pricing plans — public"},
+        {"name": "billing", "description": "Subscription management — upgrade, cancel"},
     ],
 }
 

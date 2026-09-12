@@ -33,6 +33,7 @@ import urllib.parse
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
@@ -69,6 +70,13 @@ class GoogleInitiateView(APIView):
     """
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["auth"],
+        summary="Initiate Google OAuth",
+        description="Redirects the browser to Google's sign-in page. Open in a browser — not callable from Postman directly.",
+        parameters=[OpenApiParameter("next", OpenApiTypes.STR, description="'web' or 'app'")],
+        responses={302: None},
+    )
     def get(self, request):
         # Read the origin. Default to "web" and sanitize against the allowlist
         # so a crafted ?next=https://evil.com can never become a redirect target.
@@ -85,27 +93,10 @@ class GoogleInitiateView(APIView):
 
 
 class GoogleCallbackView(APIView):
-    """
-    GET /api/v1/auth/google/callback/?code=...&state=...
-
-    Step 2 of the OAuth flow. Google redirects here after the user
-    authenticates. This view:
-      1. Checks for errors from Google (user cancelled, etc.)
-      2. Exchanges the authorization code for the user's profile
-      3. Gets or creates the local user record
-      4. Issues JWT tokens
-      5. Redirects the user to the correct destination based on `state`
-
-    On success:
-        web → 302 to {FRONTEND_WEB_URL}/auth/callback?access=...&refresh=...
-        app → 302 to {APP_DEEP_LINK_SCHEME}://auth/callback?access=...&refresh=...
-
-    On error:
-        web → 302 to {FRONTEND_WEB_URL}/auth/error?message=...
-        app → 302 to {APP_DEEP_LINK_SCHEME}://auth/error?message=...
-    """
+    """Google OAuth callback — called automatically by Google."""
     permission_classes = [AllowAny]
 
+    @extend_schema(tags=["auth"], summary="Google OAuth callback (reference only)", responses={302: None})
     def get(self, request):
         # ── Read params from Google ───────────────────────────────────────────
         error = request.query_params.get("error")
@@ -184,20 +175,10 @@ class GoogleCallbackView(APIView):
 
 
 class MeView(APIView):
-    """
-    GET /api/v1/auth/me/
-
-    Return the profile of the currently authenticated user.
-    Requires a valid Bearer JWT in the Authorization header.
-
-    Response:
-        {
-            "success": true,
-            "data": { "id": ..., "email": ..., "name": ..., "avatar": ... }
-        }
-    """
+    """GET /api/v1/auth/me/ — current user profile."""
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(tags=["auth"], summary="Get current user", responses={200: UserSerializer})
     def get(self, request):
         # request.user is populated by JWTAuthentication from the Bearer token
         serializer = UserSerializer(request.user)
@@ -205,19 +186,10 @@ class MeView(APIView):
 
 
 class SignOutView(APIView):
-    """
-    POST /api/v1/auth/signout/
-
-    Blacklist the refresh token so it can no longer be used.
-    The access token remains valid until it naturally expires (short-lived).
-
-    Request body:
-        { "refresh": "<refresh_token>" }
-
-    Response: 204 No Content
-    """
+    """POST /api/v1/auth/signout/ — blacklist refresh token."""
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(tags=["auth"], summary="Sign out", responses={204: None})
     def post(self, request):
         refresh_token = request.data.get("refresh")
         if refresh_token:

@@ -12,6 +12,7 @@ import logging
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema
 
 from apps.businesses.permissions import IsBusinessOwner
 from apps.businesses.selectors import (
@@ -44,17 +45,16 @@ logger = logging.getLogger("apps")
 
 
 class BusinessListCreateView(APIView):
-    """
-    GET  /api/v1/businesses/         List all businesses owned by the current user.
-    POST /api/v1/businesses/         Create a new business (onboarding).
-    """
+    """GET /businesses/ — list; POST /businesses/ — create (onboarding)."""
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(tags=["businesses"], summary="List my businesses", responses={200: BusinessSerializer(many=True)})
     def get(self, request):
         businesses = get_user_businesses(request.user)
         serializer = BusinessSerializer(businesses, many=True)
         return success_response(data=serializer.data)
 
+    @extend_schema(tags=["businesses"], summary="Create business (onboarding)", request=BusinessCreateSerializer, responses={201: BusinessSerializer})
     def post(self, request):
         serializer = BusinessCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

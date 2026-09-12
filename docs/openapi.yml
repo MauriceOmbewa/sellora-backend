@@ -1,0 +1,1822 @@
+openapi: 3.0.3
+info:
+  title: Sellora API
+  version: 1.0.0
+  description: |2
+
+    ## Sellora Backend API
+
+    Multi-tenant SaaS backend for the Sellora platform.
+
+    ### Authentication
+    All dashboard endpoints require a Bearer JWT token:
+    ```
+    Authorization: Bearer <access_token>
+    ```
+
+    Obtain a token by completing the Google OAuth flow:
+    1. Navigate to `GET /api/v1/auth/google/?next=web` in a browser
+    2. Complete Google sign-in
+    3. Collect `access` and `refresh` tokens from the redirect URL
+
+    ### Multi-tenancy
+    All business-scoped endpoints follow the pattern:
+    ```
+    /api/v1/businesses/{business_id}/<resource>/
+    ```
+
+    ### Public Storefront API
+    Routes under `/api/v1/store/{slug}/` require no authentication.
+    Only published storefronts (`is_published=true`) are accessible.
+
+    ### Currency
+    All monetary amounts are in **KES (Kenyan Shillings)**.
+paths:
+  /api/v1/auth/google/:
+    get:
+      operationId: auth_google_retrieve
+      description: Redirects the browser to Google's sign-in page. Open in a browser
+        — not callable from Postman directly.
+      summary: Initiate Google OAuth
+      parameters:
+      - in: query
+        name: next
+        schema:
+          type: string
+        description: '''web'' or ''app'''
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '302':
+          description: No response body
+  /api/v1/auth/google/callback/:
+    get:
+      operationId: auth_google_callback_retrieve
+      description: Google OAuth callback — called automatically by Google.
+      summary: Google OAuth callback (reference only)
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '302':
+          description: No response body
+  /api/v1/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: GET /api/v1/auth/me/ — current user profile.
+      summary: Get current user
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/auth/signout/:
+    post:
+      operationId: auth_signout_create
+      description: POST /api/v1/auth/signout/ — blacklist refresh token.
+      summary: Sign out
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/businesses/:
+    get:
+      operationId: businesses_list
+      description: GET /businesses/ — list; POST /businesses/ — create (onboarding).
+      summary: List my businesses
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Business'
+          description: ''
+    post:
+      operationId: businesses_create
+      description: GET /businesses/ — list; POST /businesses/ — create (onboarding).
+      summary: Create business (onboarding)
+      tags:
+      - businesses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BusinessCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BusinessCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Business'
+          description: ''
+  /api/v1/businesses/{business_id}/:
+    get:
+      operationId: businesses_retrieve
+      description: |-
+        GET   /api/v1/businesses/{business_id}/    Retrieve a business.
+        PATCH /api/v1/businesses/{business_id}/    Update a business.
+        DELETE /api/v1/businesses/{business_id}/   Delete a business.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: businesses_partial_update
+      description: |-
+        GET   /api/v1/businesses/{business_id}/    Retrieve a business.
+        PATCH /api/v1/businesses/{business_id}/    Update a business.
+        DELETE /api/v1/businesses/{business_id}/   Delete a business.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: businesses_destroy
+      description: |-
+        GET   /api/v1/businesses/{business_id}/    Retrieve a business.
+        PATCH /api/v1/businesses/{business_id}/    Update a business.
+        DELETE /api/v1/businesses/{business_id}/   Delete a business.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/businesses/{business_id}/analytics/categories/:
+    get:
+      operationId: businesses_analytics_categories_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/analytics/categories/
+        ?period=7d|30d|90d
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/analytics/customer-growth/:
+    get:
+      operationId: businesses_analytics_customer_growth_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/analytics/customer-growth/
+        ?period=7d|30d|90d
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/analytics/revenue/:
+    get:
+      operationId: businesses_analytics_revenue_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/analytics/revenue/
+        ?period=7d|30d|90d
+
+        Daily revenue + order count for charting.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/analytics/summary/:
+    get:
+      operationId: businesses_analytics_summary_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/analytics/summary/
+        ?period=7d|30d|90d
+
+        Returns KPI summary with % change vs prior period:
+        total_revenue, total_orders, total_customers, average_order_value,
+        revenue_change, orders_change, customers_change, aov_change
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/analytics/top-products/:
+    get:
+      operationId: businesses_analytics_top_products_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/analytics/top-products/
+        ?period=7d|30d|90d&limit=5
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/billing/:
+    get:
+      operationId: businesses_billing_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/billing/
+
+        Returns the current billing state for a business:
+        plan, monthly price, next billing date, status.
+
+        STUB — next_billing_date is calculated as 30 days from today.
+        In production this will come from the payment provider.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/billing/cancel/:
+    post:
+      operationId: businesses_billing_cancel_create
+      description: |-
+        POST /api/v1/businesses/{business_id}/billing/cancel/
+
+        STUB — downgrades to starter plan.
+        In production: cancel the Stripe subscription at period end.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/billing/upgrade/:
+    post:
+      operationId: businesses_billing_upgrade_create
+      description: |-
+        POST /api/v1/businesses/{business_id}/billing/upgrade/
+        Body: { "plan": "business" | "growth" }
+
+        STUB — updates plan field immediately without payment.
+        In production: create a Stripe checkout session and redirect.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/categories/:
+    get:
+      operationId: businesses_categories_retrieve
+      description: |-
+        GET  /api/v1/businesses/{business_id}/categories/   List categories.
+        POST /api/v1/businesses/{business_id}/categories/   Create a category.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: businesses_categories_create
+      description: |-
+        GET  /api/v1/businesses/{business_id}/categories/   List categories.
+        POST /api/v1/businesses/{business_id}/categories/   Create a category.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/categories/{category_id}/:
+    get:
+      operationId: businesses_categories_retrieve_2
+      description: |-
+        GET    /api/v1/businesses/{business_id}/categories/{category_id}/
+        PATCH  /api/v1/businesses/{business_id}/categories/{category_id}/
+        DELETE /api/v1/businesses/{business_id}/categories/{category_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: category_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: businesses_categories_partial_update
+      description: |-
+        GET    /api/v1/businesses/{business_id}/categories/{category_id}/
+        PATCH  /api/v1/businesses/{business_id}/categories/{category_id}/
+        DELETE /api/v1/businesses/{business_id}/categories/{category_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: category_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: businesses_categories_destroy
+      description: |-
+        GET    /api/v1/businesses/{business_id}/categories/{category_id}/
+        PATCH  /api/v1/businesses/{business_id}/categories/{category_id}/
+        DELETE /api/v1/businesses/{business_id}/categories/{category_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: category_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/businesses/{business_id}/customers/:
+    get:
+      operationId: businesses_customers_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/customers/
+        Query params: search, status, page, page_size
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/customers/{customer_id}/:
+    get:
+      operationId: businesses_customers_retrieve_2
+      description: |-
+        GET   /api/v1/businesses/{business_id}/customers/{customer_id}/
+        PATCH /api/v1/businesses/{business_id}/customers/{customer_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: customer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: businesses_customers_partial_update
+      description: |-
+        GET   /api/v1/businesses/{business_id}/customers/{customer_id}/
+        PATCH /api/v1/businesses/{business_id}/customers/{customer_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: customer_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/finances/expenses/:
+    get:
+      operationId: businesses_finances_expenses_retrieve
+      description: |-
+        GET  /api/v1/businesses/{business_id}/finances/expenses/
+        POST /api/v1/businesses/{business_id}/finances/expenses/
+        Query params: period=7d|30d|90d, category
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: businesses_finances_expenses_create
+      description: |-
+        GET  /api/v1/businesses/{business_id}/finances/expenses/
+        POST /api/v1/businesses/{business_id}/finances/expenses/
+        Query params: period=7d|30d|90d, category
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/:
+    get:
+      operationId: businesses_finances_expenses_retrieve_2
+      description: |-
+        GET    /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/
+        PATCH  /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/
+        DELETE /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: expense_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: businesses_finances_expenses_partial_update
+      description: |-
+        GET    /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/
+        PATCH  /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/
+        DELETE /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: expense_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: businesses_finances_expenses_destroy
+      description: |-
+        GET    /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/
+        PATCH  /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/
+        DELETE /api/v1/businesses/{business_id}/finances/expenses/{expense_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: expense_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/businesses/{business_id}/finances/summary/:
+    get:
+      operationId: businesses_finances_summary_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/finances/summary/
+        Query params: period=7d|30d|90d (default 30d)
+
+        Returns computed P&L summary:
+          revenue, cost_of_goods, gross_profit, expenses, net_profit,
+          gross_margin%, net_margin%
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/inventory/:
+    get:
+      operationId: businesses_inventory_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/inventory/
+        Query params: low_stock=true, page, page_size
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/inventory/adjust/:
+    post:
+      operationId: businesses_inventory_adjust_create
+      description: |-
+        POST /api/v1/businesses/{business_id}/inventory/adjust/
+        Body: { "product_id": uuid, "quantity_delta": int, "reason": str }
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/inventory/history/:
+    get:
+      operationId: businesses_inventory_history_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/inventory/history/
+        Returns all stock adjustments across the business.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/messages/:
+    get:
+      operationId: businesses_messages_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/messages/
+        Query params: status=unread|read|replied, page, page_size
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/messages/{message_id}/:
+    get:
+      operationId: businesses_messages_retrieve_2
+      description: |-
+        GET   /api/v1/businesses/{business_id}/messages/{message_id}/
+        PATCH /api/v1/businesses/{business_id}/messages/{message_id}/
+              Body: { "status": "read" | "replied" }
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: message_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: businesses_messages_partial_update
+      description: |-
+        GET   /api/v1/businesses/{business_id}/messages/{message_id}/
+        PATCH /api/v1/businesses/{business_id}/messages/{message_id}/
+              Body: { "status": "read" | "replied" }
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: message_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/orders/:
+    get:
+      operationId: businesses_orders_retrieve
+      description: |-
+        GET  /api/v1/businesses/{business_id}/orders/
+        POST /api/v1/businesses/{business_id}/orders/
+        Query params: status, payment_status, customer_id, search, page, page_size
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: businesses_orders_create
+      description: |-
+        GET  /api/v1/businesses/{business_id}/orders/
+        POST /api/v1/businesses/{business_id}/orders/
+        Query params: status, payment_status, customer_id, search, page, page_size
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/orders/{order_id}/:
+    get:
+      operationId: businesses_orders_retrieve_2
+      description: GET /api/v1/businesses/{business_id}/orders/{order_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/orders/{order_id}/payment-status/:
+    patch:
+      operationId: businesses_orders_payment_status_partial_update
+      description: |-
+        PATCH /api/v1/businesses/{business_id}/orders/{order_id}/payment-status/
+        Body: { "payment_status": "paid" }
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/orders/{order_id}/status/:
+    patch:
+      operationId: businesses_orders_status_partial_update
+      description: |-
+        PATCH /api/v1/businesses/{business_id}/orders/{order_id}/status/
+        Body: { "status": "confirmed", "note": "optional note" }
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: order_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/products/:
+    get:
+      operationId: businesses_products_retrieve
+      description: |-
+        GET  /api/v1/businesses/{business_id}/products/
+        POST /api/v1/businesses/{business_id}/products/
+
+        Query params for GET:
+            status      — filter by status (active/draft/archived)
+            category_id — filter by category UUID
+            search      — partial name match
+            page        — page number (default 1)
+            page_size   — results per page (default 20, max 100)
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: businesses_products_create
+      description: |-
+        GET  /api/v1/businesses/{business_id}/products/
+        POST /api/v1/businesses/{business_id}/products/
+
+        Query params for GET:
+            status      — filter by status (active/draft/archived)
+            category_id — filter by category UUID
+            search      — partial name match
+            page        — page number (default 1)
+            page_size   — results per page (default 20, max 100)
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/products/{product_id}/:
+    get:
+      operationId: businesses_products_retrieve_2
+      description: |-
+        GET    /api/v1/businesses/{business_id}/products/{product_id}/
+        PATCH  /api/v1/businesses/{business_id}/products/{product_id}/
+        DELETE /api/v1/businesses/{business_id}/products/{product_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: product_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: businesses_products_partial_update
+      description: |-
+        GET    /api/v1/businesses/{business_id}/products/{product_id}/
+        PATCH  /api/v1/businesses/{business_id}/products/{product_id}/
+        DELETE /api/v1/businesses/{business_id}/products/{product_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: product_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: businesses_products_destroy
+      description: |-
+        GET    /api/v1/businesses/{business_id}/products/{product_id}/
+        PATCH  /api/v1/businesses/{business_id}/products/{product_id}/
+        DELETE /api/v1/businesses/{business_id}/products/{product_id}/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: product_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/businesses/{business_id}/settings/:
+    get:
+      operationId: businesses_settings_retrieve
+      description: |-
+        GET /api/v1/businesses/{business_id}/settings/    Retrieve settings.
+        PUT /api/v1/businesses/{business_id}/settings/    Update settings.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: businesses_settings_update
+      description: |-
+        GET /api/v1/businesses/{business_id}/settings/    Retrieve settings.
+        PUT /api/v1/businesses/{business_id}/settings/    Update settings.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/storefront/:
+    get:
+      operationId: businesses_storefront_retrieve
+      description: |-
+        GET  /api/v1/businesses/{business_id}/storefront/   Retrieve storefront config.
+        PUT  /api/v1/businesses/{business_id}/storefront/   Save storefront changes.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: businesses_storefront_update
+      description: |-
+        GET  /api/v1/businesses/{business_id}/storefront/   Retrieve storefront config.
+        PUT  /api/v1/businesses/{business_id}/storefront/   Save storefront changes.
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/storefront/publish/:
+    post:
+      operationId: businesses_storefront_publish_create
+      description: |-
+        POST /api/v1/businesses/{business_id}/storefront/publish/
+        POST /api/v1/businesses/{business_id}/storefront/unpublish/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/{business_id}/storefront/unpublish/:
+    post:
+      operationId: businesses_storefront_unpublish_create
+      description: |-
+        POST /api/v1/businesses/{business_id}/storefront/publish/
+        POST /api/v1/businesses/{business_id}/storefront/unpublish/
+      parameters:
+      - in: path
+        name: business_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/businesses/by-slug/{slug}/:
+    get:
+      operationId: businesses_by_slug_retrieve
+      description: |-
+        GET /api/v1/businesses/by-slug/{slug}/
+
+        Resolves a business slug to its full profile.
+        Used by the frontend to initialise the storefront context.
+        No authentication required — public endpoint.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - businesses
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/plans/:
+    get:
+      operationId: plans_retrieve
+      description: |-
+        GET /api/v1/plans/
+
+        Returns all pricing plans. Public — used by the marketing/landing page
+        and the Settings → Billing tab.
+        No authentication required.
+      tags:
+      - plans
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/store/{slug}/:
+    get:
+      operationId: store_retrieve
+      description: |-
+        GET /api/v1/store/{slug}/
+
+        Returns the full business profile for the storefront home page.
+        Includes theme, hero, contact, social links, storefront settings.
+        Does NOT include costPrice or any private fields.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/store/{slug}/categories/:
+    get:
+      operationId: store_categories_retrieve
+      description: |-
+        GET /api/v1/store/{slug}/categories/
+
+        Returns active categories for storefront filtering.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/store/{slug}/messages/:
+    post:
+      operationId: store_messages_create
+      description: |-
+        POST /api/v1/store/{slug}/messages/
+
+        Submit a contact form message from the storefront.
+        No authentication required.
+
+        On success:
+          - CustomerMessage created with status=unread
+          - Email notification dispatched to business owner (if enabled)
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/store/{slug}/orders/:
+    post:
+      operationId: store_orders_create
+      description: |-
+        POST /api/v1/store/{slug}/orders/
+
+        Place an order from the storefront checkout page.
+        No authentication required.
+
+        Request body matches OrderCreateSerializer — same as dashboard,
+        but channel defaults to 'online' and is not changeable from
+        the storefront (frontend always sends online orders).
+
+        On success:
+          - Order created with status=new
+          - Stock decremented
+          - Customer auto-created/upserted by phone
+          - New order email notification dispatched (if enabled)
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/store/{slug}/products/:
+    get:
+      operationId: store_products_retrieve
+      description: |-
+        GET /api/v1/store/{slug}/products/
+
+        Returns active + available products for the storefront shop page.
+        costPrice is NEVER included (ProductPublicSerializer).
+
+        Query params:
+            category_id  — filter by category UUID
+            search       — partial name match
+            sort         — featured | newest | price-asc | price-desc | best-selling
+            page, page_size
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/store/{slug}/products/{product_slug}/:
+    get:
+      operationId: store_products_retrieve_2
+      description: |-
+        GET /api/v1/store/{slug}/products/{product_slug}/
+
+        Returns a single product by its slug.
+        Used by the storefront product detail page.
+      parameters:
+      - in: path
+        name: product_slug
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/upload/image/:
+    post:
+      operationId: upload_image_create
+      description: |-
+        POST /api/v1/upload/image/
+
+        Upload a single image file.
+        Returns the public URL of the uploaded image.
+
+        Used by:
+          - Business logo upload (onboarding + settings)
+          - Product images
+          - Storefront hero image
+
+        Request: multipart/form-data
+          file — the image file (required)
+          folder — optional subfolder hint (e.g. 'products', 'logos', 'hero')
+                    stored under media/{folder}/{uuid}.{ext}
+
+        Response:
+          { "success": true, "data": { "url": "http://..." } }
+
+        Storage:
+          Development: local media/ directory (served by Django in DEBUG mode)
+          Production:  S3 via django-storages (when USE_S3=True in settings)
+      tags:
+      - upload
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    Business:
+      type: object
+      description: |-
+        Full business representation returned by GET endpoints.
+
+        Nested JSON fields are returned as structured objects, not raw dicts,
+        so the frontend gets predictable shapes.
+
+        Read-only — never used for input validation.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner_id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner_name:
+          type: string
+          readOnly: true
+        owner_email:
+          type: string
+          format: email
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+          description: URL-safe identifier used in storefront URLs e.g. /store/maison-aura/
+          pattern: ^[-a-zA-Z0-9_]+$
+        category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryEnum'
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        motto:
+          type: string
+          readOnly: true
+        logo:
+          type: string
+          format: uri
+          readOnly: true
+        favicon:
+          type: string
+          format: uri
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        plan:
+          allOf:
+          - $ref: '#/components/schemas/PlanEnum'
+          readOnly: true
+        theme:
+          readOnly: true
+        contact:
+          readOnly: true
+        social_links:
+          readOnly: true
+        hero:
+          readOnly: true
+        about_text:
+          type: string
+          readOnly: true
+        total_products:
+          type: integer
+          readOnly: true
+        total_orders:
+          type: integer
+          readOnly: true
+        total_customers:
+          type: integer
+          readOnly: true
+        total_revenue:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        is_storefront_published:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - about_text
+      - category
+      - contact
+      - created_at
+      - description
+      - favicon
+      - hero
+      - id
+      - is_storefront_published
+      - logo
+      - motto
+      - name
+      - owner_email
+      - owner_id
+      - owner_name
+      - plan
+      - slug
+      - social_links
+      - status
+      - theme
+      - total_customers
+      - total_orders
+      - total_products
+      - total_revenue
+      - updated_at
+    BusinessCreateRequest:
+      type: object
+      description: |-
+        Validates the 4-step onboarding payload.
+
+        The frontend sends one combined POST with all steps merged:
+            Step 1 — name, category, description, motto
+            Step 2 — logo (URL from upload endpoint), contact info
+            Step 3 — theme customisation
+            Step 4 — hero content
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        description:
+          type: string
+          maxLength: 1000
+        motto:
+          type: string
+          maxLength: 255
+        logo:
+          type: string
+          format: uri
+        contact:
+          $ref: '#/components/schemas/ContactRequest'
+        theme:
+          $ref: '#/components/schemas/ThemeRequest'
+        hero:
+          $ref: '#/components/schemas/HeroRequest'
+        about_text:
+          type: string
+      required:
+      - category
+      - name
+    CategoryEnum:
+      enum:
+      - cosmetics
+      - perfumes
+      - fashion
+      - accessories
+      - beauty
+      - gifts
+      - electronics
+      - food
+      - other
+      type: string
+      description: |-
+        * `cosmetics` - Cosmetics
+        * `perfumes` - Perfumes
+        * `fashion` - Fashion
+        * `accessories` - Accessories
+        * `beauty` - Beauty
+        * `gifts` - Gifts
+        * `electronics` - Electronics
+        * `food` - Food & Beverages
+        * `other` - Other
+    ContactRequest:
+      type: object
+      properties:
+        phone:
+          type: string
+          maxLength: 30
+        whatsapp:
+          type: string
+          maxLength: 30
+        email:
+          type: string
+          format: email
+        address:
+          type: string
+          maxLength: 255
+        city:
+          type: string
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 100
+        openingHours:
+          type: string
+          maxLength: 255
+    HeroRequest:
+      type: object
+      properties:
+        heading:
+          type: string
+          maxLength: 255
+        subheading:
+          type: string
+          maxLength: 500
+        ctaText:
+          type: string
+          maxLength: 100
+        ctaSecondaryText:
+          type: string
+          maxLength: 100
+        imageUrl:
+          type: string
+          format: uri
+    PlanEnum:
+      enum:
+      - starter
+      - business
+      - growth
+      type: string
+      description: |-
+        * `starter` - Starter
+        * `business` - Business
+        * `growth` - Growth
+    StatusEnum:
+      enum:
+      - active
+      - inactive
+      - suspended
+      type: string
+      description: |-
+        * `active` - Active
+        * `inactive` - Inactive
+        * `suspended` - Suspended
+    ThemeRequest:
+      type: object
+      properties:
+        primaryColor:
+          type: string
+          minLength: 1
+          maxLength: 7
+        primaryHover:
+          type: string
+          minLength: 1
+          maxLength: 7
+        accentColor:
+          type: string
+          minLength: 1
+          maxLength: 7
+        backgroundColor:
+          type: string
+          minLength: 1
+          maxLength: 7
+        textColor:
+          type: string
+          minLength: 1
+          maxLength: 7
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    User:
+      type: object
+      description: |-
+        Read-only representation of a user.
+
+        Used by:
+          - GET /api/v1/auth/me/  → returns the current user's profile
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        avatar:
+          type: string
+          format: uri
+          readOnly: true
+        is_staff:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - avatar
+      - created_at
+      - email
+      - id
+      - is_staff
+      - name
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: auth
+  description: Authentication — Google OAuth 2.0 + JWT
+- name: businesses
+  description: Business management — CRUD, settings, storefront config
+- name: products
+  description: Product catalogue — CRUD, availability, stock
+- name: categories
+  description: Product categories
+- name: inventory
+  description: Stock management and adjustment audit log
+- name: orders
+  description: Order processing — state machine, timeline
+- name: customers
+  description: Customer records — auto-created from orders
+- name: finances
+  description: Expenses and P&L financial summary
+- name: analytics
+  description: Business analytics — KPIs, time-series, rankings
+- name: messages
+  description: Customer inquiries from the storefront contact form
+- name: storefront
+  description: Public storefront API — no auth required
+- name: uploads
+  description: File upload — images for products, logos, hero
+- name: plans
+  description: Pricing plans — public
+- name: billing
+  description: Subscription management — upgrade, cancel

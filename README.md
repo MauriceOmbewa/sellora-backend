@@ -536,11 +536,39 @@ See `.env.example` for the full list. Key variables:
 | Phase | Steps | Status |
 |---|---|---|
 | 1 — Foundation | Environment, scaffold, base config | ✅ Done |
-| 2 — Core infrastructure | Common layer, middleware, accounts + Google OAuth | 🔄 In progress |
-| 3 — Business domain | Businesses, categories, products | Pending |
-| 4 — Commerce | Customers, orders, inventory | Pending |
-| 5 — Financial & reporting | Finances, analytics | Pending |
-| 6 — Notifications & messaging | Celery tasks, messages | Pending |
-| 7 — Public storefront API | All `/store/{slug}/` endpoints | Pending |
-| 8 — Admin, uploads, billing | Django admin, S3, plans | Pending |
-| 9 — Quality & deployment | Tests, docs, production config | Pending |
+| 2 — Core infrastructure | Common layer, middleware, accounts + Google OAuth | ✅ Done |
+| 3 — Business domain | Businesses, categories, products | ✅ Done |
+| 4 — Commerce | Customers, orders, inventory | ✅ Done |
+| 5 — Financial & reporting | Finances, analytics | ✅ Done |
+| 6 — Notifications & messaging | Celery tasks, messages | ✅ Done |
+| 7 — Public storefront API | All `/store/{slug}/` endpoints | ✅ Done |
+| 8 — Admin, uploads, billing | Django admin, S3, plans | ✅ Done |
+| 9 — Quality & deployment | Tests, docs, production config | ✅ Done |
+
+### All 23 steps complete
+
+| Step | Description | Status |
+|---|---|---|
+| 1 | Python 3.12, PostgreSQL 16, virtualenv, packages | ✅ |
+| 2 | Full project scaffold | ✅ |
+| 3 | Settings split, .env, PostgreSQL connected, migrate clean | ✅ |
+| 4 | Common layer — BaseModel, exception handler, pagination, responses | ✅ |
+| 5 | Middleware — TenantMiddleware, LoggingMiddleware | ✅ |
+| 6 | Accounts app — Google OAuth, JWT, /auth/me, /auth/signout | ✅ |
+| 7 | Businesses app — Business, settings, storefront, CRUD, onboarding, IsBusinessOwner | ✅ |
+| 8 | Categories app — CRUD, productCount signal, public endpoint | ✅ |
+| 9 | Products app — model, CRUD, services, public storefront endpoints | ✅ |
+| 10 | Customers app — model, auto-upsert by phone | ✅ |
+| 11 | Orders app — Order + OrderItem + OrderTimeline, state machine | ✅ |
+| 12 | Inventory app — stock view, StockAdjustment, adjust endpoint | ✅ |
+| 13 | Finances app — Expense model, FinanceSummary computed endpoint | ✅ |
+| 14 | Analytics app — AnalyticsSummary, time-series, period filter | ✅ |
+| 15 | Notifications + Celery — order/stock/message email alerts | ✅ |
+| 16 | Messages app — customer inquiries, contact form | ✅ |
+| 17 | Public storefront API — all `/store/{slug}/` endpoints | ✅ |
+| 18 | File upload endpoint — image upload, local/S3 | ✅ |
+| 19 | Django Admin — all 14 models registered | ✅ |
+| 20 | Plans & Billing stubs — upgrade/cancel endpoints | ✅ |
+| 21 | API documentation — drf-spectacular, Swagger UI at `/api/docs/` | ✅ |
+| 22 | Tests — 41 tests, factories for all models, 100% pass | ✅ |
+| 23 | Production config — gunicorn, whitenoise, deploy checklist | ✅ |

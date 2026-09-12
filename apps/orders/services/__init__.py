@@ -79,11 +79,19 @@ def create_order(business, *, customer_name: str, customer_phone: str,
             raise ValueError(f"Quantity must be at least 1 (got {quantity}).")
 
         try:
-            product = Product.objects.select_for_update().get(
-                id=product_id,
-                business=business,
-                status="active",
-            )
+            from django.db import connection
+            if connection.vendor == "postgresql":
+                product = Product.objects.select_for_update().get(
+                    id=product_id,
+                    business=business,
+                    status="active",
+                )
+            else:
+                product = Product.objects.get(
+                    id=product_id,
+                    business=business,
+                    status="active",
+                )
         except Product.DoesNotExist:
             raise ValueError(
                 f"Product {product_id} not found or not available in this business."
@@ -157,7 +165,7 @@ def create_order(business, *, customer_name: str, customer_phone: str,
     # ── 5b. Create OrderItems + decrement stock ───────────────────────────────
     for item_data in validated_items:
         product = item_data.pop("product")
-        OrderItem.objects.create(order=order, **item_data)
+        OrderItem.objects.create(order=order, product=product, **item_data)
 
         # Decrement stock atomically
         from django.db.models import F
@@ -281,7 +289,8 @@ def _restore_stock(order: Order):
     from django.db.models import F
     from apps.products.models import Product
 
-    for item in order.items.all():
+    # Re-fetch items from DB to ensure we have the latest data
+    for item in order.items.select_related("product").all():
         if item.product_id:
             Product.objects.filter(id=item.product_id).update(
                 stock_quantity=F("stock_quantity") + item.quantity

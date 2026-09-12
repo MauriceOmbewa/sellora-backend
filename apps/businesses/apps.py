@@ -6,3 +6,5 @@ class BusinessesConfig(AppConfig):
     name = "apps.businesses"
     verbose_name = "Businesses"
 
+    def ready(self):
+        import apps.businesses.signals  # noqa: F401 — register signal handlers

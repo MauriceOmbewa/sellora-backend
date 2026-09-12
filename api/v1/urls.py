@@ -1,40 +1,38 @@
 """
 API v1 URL configuration.
-
-Each app registers its own router/urlconf here.
-Populated progressively as apps are built.
+Each app registers its own urlconf here.
 """
 from django.urls import path, include
 
 urlpatterns = [
-    # Auth
+    # ── Auth ──────────────────────────────────────────────────────────────────
     path("auth/", include("apps.accounts.urls")),
 
-    # Business management
+    # ── Businesses (includes settings + storefront sub-paths) ─────────────────
     path("businesses/", include("apps.businesses.urls")),
 
-    # Products & Categories
+    # ── Products & Categories (business-scoped) ───────────────────────────────
     path("businesses/<uuid:business_id>/products/", include("apps.products.urls")),
     path("businesses/<uuid:business_id>/categories/", include("apps.categories.urls")),
 
-    # Inventory
+    # ── Inventory ─────────────────────────────────────────────────────────────
     path("businesses/<uuid:business_id>/inventory/", include("apps.inventory.urls")),
 
-    # Customers
+    # ── Customers ─────────────────────────────────────────────────────────────
     path("businesses/<uuid:business_id>/customers/", include("apps.customers.urls")),
 
-    # Orders
+    # ── Orders ────────────────────────────────────────────────────────────────
     path("businesses/<uuid:business_id>/orders/", include("apps.orders.urls")),
 
-    # Finances
+    # ── Finances ──────────────────────────────────────────────────────────────
     path("businesses/<uuid:business_id>/finances/", include("apps.finances.urls")),
 
-    # Analytics
+    # ── Analytics ─────────────────────────────────────────────────────────────
     path("businesses/<uuid:business_id>/analytics/", include("apps.analytics.urls")),
 
-    # Messages (customer inquiries)
+    # ── Messages (customer inquiries) ─────────────────────────────────────────
     path("businesses/<uuid:business_id>/messages/", include("apps.messages.urls")),
 
-    # Public storefront API (no auth, keyed by slug)
+    # ── Public storefront API (no auth, keyed by slug) ────────────────────────
     path("store/", include("apps.businesses.storefront_urls")),
 ]

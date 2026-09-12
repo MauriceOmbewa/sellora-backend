@@ -243,6 +243,18 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Sellora <noreply@sellora
 
 # ─── Frontend URL ─────────────────────────────────────────────────────────────
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
+FRONTEND_WEB_URL = env("FRONTEND_WEB_URL", default="http://localhost:5173")
+
+# ─── Google OAuth redirect URI ────────────────────────────────────────────────
+# Must match EXACTLY what is registered in Google Cloud Console
+GOOGLE_REDIRECT_URI = env(
+    "GOOGLE_REDIRECT_URI",
+    default="http://localhost:8000/api/v1/auth/google/callback/",
+)
+
+# ─── Mobile app deep link scheme ─────────────────────────────────────────────
+# The mobile app must register this URI scheme to receive the OAuth result
+APP_DEEP_LINK_SCHEME = env("APP_DEEP_LINK_SCHEME", default="sellora")
 
 # ─── File Storage ─────────────────────────────────────────────────────────────
 USE_S3 = env("USE_S3")

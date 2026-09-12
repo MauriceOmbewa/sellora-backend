@@ -1,0 +1,1009 @@
+{
+  "info": {
+    "name": "Sellora API",
+    "description": "Sellora backend API collection.\n\n## Setup\n1. Set the `baseUrl` variable to your server (default: `http://localhost:8000`).\n2. Complete Google SSO by opening `GET {{baseUrl}}/api/v1/auth/google/?next=web` in a browser — you can't do the redirect flow in Postman directly.\n3. Copy the `access` and `refresh` tokens from the redirect callback URL and paste them into the `accessToken` and `refreshToken` collection variables.\n4. All authenticated requests will pick up the Bearer token automatically.\n\n## Auth flow reminder\n- Open `{{baseUrl}}/api/v1/auth/google/?next=web` in a browser\n- Log in with Google\n- You land on `{FRONTEND_WEB_URL}/auth/callback?access=TOKEN&refresh=TOKEN`\n- Copy those tokens into the collection variables below",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string",
+      "description": "Backend base URL. Change to your production URL when needed."
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string",
+      "description": "JWT access token. Paste here after completing Google SSO in a browser."
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string",
+      "description": "JWT refresh token. Used by the token refresh request."
+    },
+    {
+      "key": "businessId",
+      "value": "",
+      "type": "string",
+      "description": "UUID of the business you are working with. Set after creating or listing businesses."
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Google OAuth initiation, token management, and user profile.",
+      "item": [
+        {
+          "name": "Initiate Google SSO (web)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/google/?next=web",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "google", ""],
+              "query": [
+                {
+                  "key": "next",
+                  "value": "web",
+                  "description": "Origin: 'web' redirects to FRONTEND_WEB_URL after login"
+                }
+              ]
+            },
+            "description": "Opens the Google sign-in page.\n\nPostman will follow the redirect to Google — you cannot complete login inside Postman. Open this URL in a real browser instead.\n\nAfter login, Google redirects to /api/v1/auth/google/callback/ which then redirects you to:\n  {FRONTEND_WEB_URL}/auth/callback?access=TOKEN&refresh=TOKEN\n\nCopy those tokens into the `accessToken` and `refreshToken` collection variables."
+          }
+        },
+        {
+          "name": "Initiate Google SSO (app)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/google/?next=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "google", ""],
+              "query": [
+                {
+                  "key": "next",
+                  "value": "app",
+                  "description": "Origin: 'app' redirects to APP_DEEP_LINK_SCHEME://auth/callback after login"
+                }
+              ]
+            },
+            "description": "Same as the web flow but after login the backend redirects to the mobile deep link:\n  sellora://auth/callback?access=TOKEN&refresh=TOKEN\n\nOpen in a browser on a device that has the app installed to test the deep link."
+          }
+        },
+        {
+          "name": "Google OAuth Callback (reference only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/google/callback/?code=GOOGLE_CODE&state=web",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "google", "callback", ""],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "GOOGLE_CODE",
+                  "description": "One-time authorization code from Google. You cannot generate this manually."
+                },
+                {
+                  "key": "state",
+                  "value": "web",
+                  "description": "Passed through from the initiation step. 'web' or 'app'."
+                }
+              ]
+            },
+            "description": "This endpoint is called automatically by Google after the user signs in. You never call it manually.\n\nIncluded here for documentation purposes only — to show what Google sends back and what parameters it carries."
+          }
+        },
+        {
+          "name": "Get Current User (me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me", ""]
+            },
+            "description": "Returns the profile of the currently authenticated user.\n\nRequires: Bearer token in Authorization header (set via collection variable).\n\nResponse:\n{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"uuid\",\n    \"email\": \"user@gmail.com\",\n    \"name\": \"John Doe\",\n    \"avatar\": \"https://...\",\n    \"is_staff\": false,\n    \"created_at\": \"2026-09-12T...\"\n  }\n}"
+          }
+        },
+        {
+          "name": "Refresh Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access) {",
+                  "    pm.collectionVariables.set('accessToken', json.access);",
+                  "    console.log('Access token refreshed and saved to collection variable.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/token/refresh/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "token", "refresh", ""]
+            },
+            "description": "Exchange a refresh token for a new access token.\n\nNo Authorization header needed — uses the refresh token in the body.\n\nThe test script automatically saves the new access token to the `accessToken` collection variable.\n\nNote: with ROTATE_REFRESH_TOKENS=True, a new refresh token is also returned. Update `refreshToken` manually if you want to keep it current."
+          }
+        },
+        {
+          "name": "Sign Out",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/signout/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "signout", ""]
+            },
+            "description": "Blacklists the refresh token so it can no longer be used.\n\nThe access token will remain valid until it naturally expires (60 minutes by default). For immediate invalidation, reduce ACCESS_TOKEN_LIFETIME_MINUTES in your .env.\n\nResponse: 204 No Content"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Businesses",
+      "description": "Business management. Each user can own one or more businesses. All other resources are scoped under a business ID.",
+      "item": [
+        {
+          "name": "List My Businesses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.success && json.results && json.results.length > 0) {",
+                  "    pm.collectionVariables.set('businessId', json.results[0].id);",
+                  "    console.log('businessId set to: ' + json.results[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", ""]
+            },
+            "description": "List all businesses owned by the authenticated user.\n\nThe test script automatically sets `businessId` to the first result's ID."
+          }
+        },
+        {
+          "name": "Create Business",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Store\",\n  \"slug\": \"my-store\",\n  \"description\": \"A great store.\",\n  \"currency\": \"KES\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Business",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Business",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Store Name\",\n  \"description\": \"Updated description.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", ""]
+            }
+          }
+        },
+        {
+          "name": "Delete Business",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "description": "Product catalogue for a business. All endpoints are scoped under /businesses/{businessId}/products/.",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ""],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Search by name"
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter by category UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Blue T-Shirt\",\n  \"slug\": \"blue-t-shirt\",\n  \"description\": \"A comfortable cotton t-shirt.\",\n  \"price\": \"1500.00\",\n  \"category\": null,\n  \"is_available\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Product",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/:productId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ":productId", ""],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "",
+                  "description": "Product UUID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": \"1800.00\",\n  \"is_available\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/:productId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ":productId", ""],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/:productId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ":productId", ""],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "description": "Product categories for a business.",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Clothing\",\n  \"slug\": \"clothing\",\n  \"description\": \"All clothing items.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/:categoryId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ":categoryId", ""],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Apparel\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/:categoryId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ":categoryId", ""],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/:categoryId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ":categoryId", ""],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "description": "Stock management for a business.",
+      "item": [
+        {
+          "name": "List Inventory",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/inventory/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "inventory", ""],
+              "query": [
+                {
+                  "key": "low_stock",
+                  "value": "true",
+                  "disabled": true,
+                  "description": "Filter to only low-stock items"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Adjust Stock",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": \"<product-uuid>\",\n  \"quantity\": 50,\n  \"note\": \"Restocked from supplier\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/inventory/adjust/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "inventory", "adjust", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "description": "Customer records for a business.",
+      "item": [
+        {
+          "name": "List Customers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/customers/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "customers", ""],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Search by name or email"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Customer",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/customers/:customerId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "customers", ":customerId", ""],
+              "variable": [
+                {
+                  "key": "customerId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "description": "Order management for a business.",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", ""],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter by status: pending, confirmed, fulfilled, cancelled"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/:orderId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", ":orderId", ""],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/:orderId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", ":orderId", ""],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Finances",
+      "description": "Expenses and financial reporting for a business.",
+      "item": [
+        {
+          "name": "List Expenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ""]
+            }
+          }
+        },
+        {
+          "name": "Create Expense",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Supplier payment\",\n  \"amount\": \"5000.00\",\n  \"category\": \"stock\",\n  \"date\": \"2026-09-12\",\n  \"note\": \"Paid via M-PESA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ""]
+            }
+          }
+        },
+        {
+          "name": "Financial Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/summary/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "summary", ""],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "Options: 7d, 30d, 90d"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "description": "Dashboard analytics for a business.",
+      "item": [
+        {
+          "name": "Analytics Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/summary/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "summary", ""],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "Options: 7d, 30d, 90d"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Revenue Time Series",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/revenue/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "revenue", ""],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "Options: 7d, 30d, 90d"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "description": "Customer inquiries received through the storefront contact form.",
+      "item": [
+        {
+          "name": "List Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/messages/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "messages", ""],
+              "query": [
+                {
+                  "key": "is_read",
+                  "value": "false",
+                  "disabled": true,
+                  "description": "Filter by read status"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark Message Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_read\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/messages/:messageId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "messages", ":messageId", ""],
+              "variable": [
+                {
+                  "key": "messageId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Storefront (Public)",
+      "description": "Public storefront API. No authentication required. Keyed by business slug.",
+      "item": [
+        {
+          "name": "Get Storefront",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/store/:slug/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "store", ":slug", ""],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store",
+                  "description": "Business slug"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Storefront Products",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/store/:slug/products/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "store", ":slug", "products", ""],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                }
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Storefront Product",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/store/:slug/products/:productSlug/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "store", ":slug", "products", ":productSlug", ""],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                },
+                {
+                  "key": "productSlug",
+                  "value": "blue-t-shirt"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Storefront Categories",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/store/:slug/categories/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "store", ":slug", "categories", ""],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Place Order",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_name\": \"Jane Doe\",\n  \"customer_email\": \"jane@example.com\",\n  \"customer_phone\": \"+254712345678\",\n  \"delivery_address\": \"123 Moi Avenue, Nairobi\",\n  \"items\": [\n    {\n      \"product\": \"<product-uuid>\",\n      \"quantity\": 2\n    }\n  ],\n  \"note\": \"Please call before delivery.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/store/:slug/orders/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "store", ":slug", "orders", ""],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Contact Form (Send Message)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"message\": \"Do you do bulk orders?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/store/:slug/messages/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "store", ":slug", "messages", ""],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

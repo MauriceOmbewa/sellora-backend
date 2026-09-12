@@ -793,17 +793,35 @@
     },
     {
       "name": "Finances",
-      "description": "Expenses and financial reporting for a business.",
+      "description": "Expenses and financial reporting. All amounts in KSh.",
       "item": [
+        {
+          "name": "Financial Summary (P&L)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/summary/?period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "summary", ""],
+              "query": [{"key": "period", "value": "30d", "description": "7d | 30d | 90d | all"}]
+            },
+            "description": "Computed P&L: revenue (completed orders), COGS, gross profit, expenses, net profit, margins."
+          }
+        },
         {
           "name": "List Expenses",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/",
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/?period=30d",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ""]
+              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ""],
+              "query": [
+                {"key": "period", "value": "30d", "description": "7d | 30d | 90d | all"},
+                {"key": "category", "value": "", "disabled": true, "description": "stock_purchases|staff_salaries|rent_utilities|marketing|delivery_costs|equipment|other"}
+              ]
             }
           }
         },
@@ -811,15 +829,10 @@
           "name": "Create Expense",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Supplier payment\",\n  \"amount\": \"5000.00\",\n  \"category\": \"stock\",\n  \"date\": \"2026-09-12\",\n  \"note\": \"Paid via M-PESA\"\n}"
+              "raw": "{\n  \"category\": \"stock_purchases\",\n  \"description\": \"Supplier payment — batch 12\",\n  \"amount\": \"15000.00\",\n  \"date\": \"2026-09-11\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/",
@@ -829,21 +842,45 @@
           }
         },
         {
-          "name": "Financial Summary",
+          "name": "Get Expense",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/summary/",
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/:expenseId/",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "summary", ""],
-              "query": [
-                {
-                  "key": "period",
-                  "value": "30d",
-                  "description": "Options: 7d, 30d, 90d"
-                }
-              ]
+              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ":expenseId", ""],
+              "variable": [{"key": "expenseId", "value": ""}]
+            }
+          }
+        },
+        {
+          "name": "Update Expense",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"18000.00\",\n  \"description\": \"Supplier payment — batch 12 (revised)\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/:expenseId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ":expenseId", ""],
+              "variable": [{"key": "expenseId", "value": ""}]
+            }
+          }
+        },
+        {
+          "name": "Delete Expense",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/:expenseId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ":expenseId", ""],
+              "variable": [{"key": "expenseId", "value": ""}]
             }
           }
         }
@@ -851,25 +888,20 @@
     },
     {
       "name": "Analytics",
-      "description": "Dashboard analytics for a business.",
+      "description": "Business analytics — all computed from orders, products, customers. No separate data store.",
       "item": [
         {
-          "name": "Analytics Summary",
+          "name": "Analytics Summary (KPIs)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/summary/",
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/summary/?period=30d",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "summary", ""],
-              "query": [
-                {
-                  "key": "period",
-                  "value": "30d",
-                  "description": "Options: 7d, 30d, 90d"
-                }
-              ]
-            }
+              "query": [{"key": "period", "value": "30d", "description": "7d | 30d | 90d"}]
+            },
+            "description": "Returns: total_revenue, total_orders, total_customers, average_order_value + % change vs prior period for each."
           }
         },
         {
@@ -878,16 +910,53 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/revenue/",
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/revenue/?period=30d",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "revenue", ""],
+              "query": [{"key": "period", "value": "30d", "description": "7d | 30d | 90d"}]
+            },
+            "description": "Daily { date, revenue, orders } for charting."
+          }
+        },
+        {
+          "name": "Top Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/top-products/?period=30d&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "top-products", ""],
               "query": [
-                {
-                  "key": "period",
-                  "value": "30d",
-                  "description": "Options: 7d, 30d, 90d"
-                }
+                {"key": "period", "value": "30d"},
+                {"key": "limit", "value": "5", "description": "Max 20"}
               ]
+            }
+          }
+        },
+        {
+          "name": "Category Performance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/categories/?period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "categories", ""],
+              "query": [{"key": "period", "value": "30d"}]
+            }
+          }
+        },
+        {
+          "name": "Customer Growth",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/customer-growth/?period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "customer-growth", ""],
+              "query": [{"key": "period", "value": "30d"}]
             }
           }
         }

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Sellora API",
-    "description": "Sellora backend API collection.\n\n## Setup\n1. Set the `baseUrl` variable to your server (default: `http://localhost:8000`).\n2. Complete Google SSO by opening `GET {{baseUrl}}/api/v1/auth/google/?next=web` in a browser — you can't do the redirect flow in Postman directly.\n3. Copy the `access` and `refresh` tokens from the redirect callback URL and paste them into the `accessToken` and `refreshToken` collection variables.\n4. All authenticated requests will pick up the Bearer token automatically.\n\n## Auth flow reminder\n- Open `{{baseUrl}}/api/v1/auth/google/?next=web` in a browser\n- Log in with Google\n- You land on `{FRONTEND_WEB_URL}/auth/callback?access=TOKEN&refresh=TOKEN`\n- Copy those tokens into the collection variables below",
+    "description": "Sellora backend API collection.\n\n## Setup\n1. Set the `baseUrl` variable to your server (default: `http://localhost:8000`).\n2. Complete Google SSO by opening `GET {{baseUrl}}/api/v1/auth/google/?next=web` in a browser \u2014 you can't do the redirect flow in Postman directly.\n3. Copy the `access` and `refresh` tokens from the redirect callback URL and paste them into the `accessToken` and `refreshToken` collection variables.\n4. All authenticated requests will pick up the Bearer token automatically.\n\n## Auth flow reminder\n- Open `{{baseUrl}}/api/v1/auth/google/?next=web` in a browser\n- Log in with Google\n- You land on `{FRONTEND_WEB_URL}/auth/callback?access=TOKEN&refresh=TOKEN`\n- Copy those tokens into the collection variables below",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -58,8 +58,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/google/?next=web",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "google", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "google",
+                ""
+              ],
               "query": [
                 {
                   "key": "next",
@@ -68,7 +76,7 @@
                 }
               ]
             },
-            "description": "Opens the Google sign-in page.\n\nPostman will follow the redirect to Google — you cannot complete login inside Postman. Open this URL in a real browser instead.\n\nAfter login, Google redirects to /api/v1/auth/google/callback/ which then redirects you to:\n  {FRONTEND_WEB_URL}/auth/callback?access=TOKEN&refresh=TOKEN\n\nCopy those tokens into the `accessToken` and `refreshToken` collection variables."
+            "description": "Opens the Google sign-in page.\n\nPostman will follow the redirect to Google \u2014 you cannot complete login inside Postman. Open this URL in a real browser instead.\n\nAfter login, Google redirects to /api/v1/auth/google/callback/ which then redirects you to:\n  {FRONTEND_WEB_URL}/auth/callback?access=TOKEN&refresh=TOKEN\n\nCopy those tokens into the `accessToken` and `refreshToken` collection variables."
           }
         },
         {
@@ -78,8 +86,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/google/?next=app",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "google", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "google",
+                ""
+              ],
               "query": [
                 {
                   "key": "next",
@@ -98,8 +114,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/google/callback/?code=GOOGLE_CODE&state=web",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "google", "callback", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "google",
+                "callback",
+                ""
+              ],
               "query": [
                 {
                   "key": "code",
@@ -113,7 +138,7 @@
                 }
               ]
             },
-            "description": "This endpoint is called automatically by Google after the user signs in. You never call it manually.\n\nIncluded here for documentation purposes only — to show what Google sends back and what parameters it carries."
+            "description": "This endpoint is called automatically by Google after the user signs in. You never call it manually.\n\nIncluded here for documentation purposes only \u2014 to show what Google sends back and what parameters it carries."
           }
         },
         {
@@ -123,8 +148,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/me/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "me", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me",
+                ""
+              ]
             },
             "description": "Returns the profile of the currently authenticated user.\n\nRequires: Bearer token in Authorization header (set via collection variable).\n\nResponse:\n{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"uuid\",\n    \"email\": \"user@gmail.com\",\n    \"name\": \"John Doe\",\n    \"avatar\": \"https://...\",\n    \"is_staff\": false,\n    \"created_at\": \"2026-09-12T...\"\n  }\n}"
           }
@@ -163,10 +196,19 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/token/refresh/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "token", "refresh", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "token",
+                "refresh",
+                ""
+              ]
             },
-            "description": "Exchange a refresh token for a new access token.\n\nNo Authorization header needed — uses the refresh token in the body.\n\nThe test script automatically saves the new access token to the `accessToken` collection variable.\n\nNote: with ROTATE_REFRESH_TOKENS=True, a new refresh token is also returned. Update `refreshToken` manually if you want to keep it current."
+            "description": "Exchange a refresh token for a new access token.\n\nNo Authorization header needed \u2014 uses the refresh token in the body.\n\nThe test script automatically saves the new access token to the `accessToken` collection variable.\n\nNote: with ROTATE_REFRESH_TOKENS=True, a new refresh token is also returned. Update `refreshToken` manually if you want to keep it current."
           }
         },
         {
@@ -185,8 +227,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/signout/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "auth", "signout", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "signout",
+                ""
+              ]
             },
             "description": "Blacklists the refresh token so it can no longer be used.\n\nThe access token will remain valid until it naturally expires (60 minutes by default). For immediate invalidation, reduce ACCESS_TOKEN_LIFETIME_MINUTES in your .env.\n\nResponse: 204 No Content"
           }
@@ -219,8 +269,15 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                ""
+              ]
             },
             "description": "List all businesses owned by the authenticated user.\n\nThe test script automatically sets `businessId` to the first result's ID."
           }
@@ -237,12 +294,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Maison Aura\",\n  \"category\": \"cosmetics\",\n  \"description\": \"Premium beauty and skincare products.\",\n  \"motto\": \"Beauty, redefined.\",\n  \"logo\": \"\",\n  \"contact\": {\n    \"phone\": \"+254712345678\",\n    \"whatsapp\": \"+254712345678\",\n    \"email\": \"hello@maisonaura.com\",\n    \"address\": \"123 Moi Avenue\",\n    \"city\": \"Nairobi\",\n    \"country\": \"Kenya\",\n    \"openingHours\": \"Mon–Fri: 8am – 6pm\"\n  },\n  \"theme\": {\n    \"primaryColor\": \"#7C3AED\",\n    \"primaryHover\": \"#6D28D9\",\n    \"accentColor\": \"#F59E0B\",\n    \"backgroundColor\": \"#FFFFFF\",\n    \"textColor\": \"#111827\"\n  },\n  \"hero\": {\n    \"heading\": \"Welcome to Maison Aura\",\n    \"subheading\": \"Beauty, redefined.\",\n    \"ctaText\": \"Shop Now\",\n    \"ctaSecondaryText\": \"Learn More\"\n  }\n}"
+              "raw": "{\n  \"name\": \"Maison Aura\",\n  \"category\": \"cosmetics\",\n  \"description\": \"Premium beauty and skincare products.\",\n  \"motto\": \"Beauty, redefined.\",\n  \"logo\": \"\",\n  \"contact\": {\n    \"phone\": \"+254712345678\",\n    \"whatsapp\": \"+254712345678\",\n    \"email\": \"hello@maisonaura.com\",\n    \"address\": \"123 Moi Avenue\",\n    \"city\": \"Nairobi\",\n    \"country\": \"Kenya\",\n    \"openingHours\": \"Mon\u2013Fri: 8am \u2013 6pm\"\n  },\n  \"theme\": {\n    \"primaryColor\": \"#7C3AED\",\n    \"primaryHover\": \"#6D28D9\",\n    \"accentColor\": \"#F59E0B\",\n    \"backgroundColor\": \"#FFFFFF\",\n    \"textColor\": \"#111827\"\n  },\n  \"hero\": {\n    \"heading\": \"Welcome to Maison Aura\",\n    \"subheading\": \"Beauty, redefined.\",\n    \"ctaText\": \"Shop Now\",\n    \"ctaSecondaryText\": \"Learn More\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                ""
+              ]
             },
             "description": "Creates a new business (onboarding flow). Slug is auto-generated from the name. Plan defaults to 'starter'."
           }
@@ -254,8 +318,16 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                ""
+              ]
             }
           }
         },
@@ -275,8 +347,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                ""
+              ]
             }
           }
         },
@@ -287,21 +367,40 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                ""
+              ]
             }
           }
         },
         {
           "name": "Get Business by Slug (Public)",
           "request": {
-            "auth": { "type": "noauth" },
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/by-slug/:slug/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "by-slug", ":slug", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "by-slug",
+                ":slug",
+                ""
+              ],
               "variable": [
                 {
                   "key": "slug",
@@ -310,7 +409,7 @@
                 }
               ]
             },
-            "description": "Resolves a business slug to its full profile. Public — no auth required.\n\nUsed by the frontend to initialise the storefront context on page load."
+            "description": "Resolves a business slug to its full profile. Public \u2014 no auth required.\n\nUsed by the frontend to initialise the storefront context on page load."
           }
         },
         {
@@ -320,8 +419,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/settings/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "settings", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "settings",
+                ""
+              ]
             },
             "description": "Returns notification preferences and locale settings (currency, timezone, language)."
           }
@@ -330,17 +438,31 @@
           "name": "Update Business Settings",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email_on_new_order\": true,\n  \"email_on_low_stock\": true,\n  \"email_on_new_message\": true,\n  \"sms_on_new_order\": false,\n  \"currency\": \"KES\",\n  \"timezone\": \"Africa/Nairobi\",\n  \"language\": \"en\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/settings/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "settings", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "settings",
+                ""
+              ]
             },
-            "description": "All fields are optional — only send the ones you want to change."
+            "description": "All fields are optional \u2014 only send the ones you want to change."
           }
         },
         {
@@ -350,8 +472,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/storefront/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "storefront", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "storefront",
+                ""
+              ]
             },
             "description": "Returns storefront display configuration: featured products/categories, section toggles, publish state."
           }
@@ -360,15 +491,29 @@
           "name": "Save Storefront Settings",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"featured_product_ids\": [],\n  \"featured_category_ids\": [],\n  \"show_new_arrivals\": true,\n  \"show_best_sellers\": true,\n  \"show_testimonials\": false\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/storefront/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "storefront", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "storefront",
+                ""
+              ]
             },
             "description": "Saves storefront configuration changes without publishing.\n\nTo push changes live, call the Publish endpoint after saving."
           }
@@ -380,8 +525,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/storefront/publish/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "storefront", "publish", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "storefront",
+                "publish",
+                ""
+              ]
             },
             "description": "Makes the storefront publicly visible. Sets is_published=true and records last_published_at.\n\nBusiness must have status=active."
           }
@@ -393,8 +548,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/storefront/unpublish/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "storefront", "unpublish", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "storefront",
+                "unpublish",
+                ""
+              ]
             },
             "description": "Takes the storefront offline. Sets is_published=false."
           }
@@ -412,8 +577,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "products",
+                ""
+              ],
               "query": [
                 {
                   "key": "page",
@@ -445,15 +619,29 @@
           "name": "Create Product",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Velvet Rose Perfume\",\n  \"description\": \"A rich floral scent with notes of rose and oud.\",\n  \"category_id\": null,\n  \"selling_price\": \"3500.00\",\n  \"cost_price\": \"1200.00\",\n  \"sale_price\": null,\n  \"sku\": \"VRP-001\",\n  \"stock_quantity\": 50,\n  \"low_stock_threshold\": 5,\n  \"status\": \"active\",\n  \"is_featured\": true,\n  \"is_available\": true,\n  \"images\": [],\n  \"badge\": \"new\",\n  \"tags\": [\"perfume\", \"floral\", \"luxury\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "products",
+                ""
+              ]
             },
             "description": "Creates a product. slug is auto-generated from name if not provided.\ncategory_id: UUID of an existing category in this business, or null."
           }
@@ -465,8 +653,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/:productId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ":productId", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "products",
+                ":productId",
+                ""
+              ],
               "variable": [
                 {
                   "key": "productId",
@@ -481,18 +679,38 @@
           "name": "Update Product",
           "request": {
             "method": "PATCH",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"selling_price\": \"3800.00\",\n  \"is_available\": true,\n  \"status\": \"active\",\n  \"badge\": \"best-seller\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/:productId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ":productId", ""],
-              "variable": [{"key": "productId", "value": ""}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "products",
+                ":productId",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": ""
+                }
+              ]
             },
-            "description": "Partial update — only send the fields you want to change.\nDELETE soft-archives the product (status=archived, is_available=false)."
+            "description": "Partial update \u2014 only send the fields you want to change.\nDELETE soft-archives the product (status=archived, is_available=false)."
           }
         },
         {
@@ -502,8 +720,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/:productId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "products", ":productId", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "products",
+                ":productId",
+                ""
+              ],
               "variable": [
                 {
                   "key": "productId",
@@ -526,8 +754,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "categories",
+                ""
+              ]
             }
           }
         },
@@ -535,17 +772,31 @@
           "name": "Create Category",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Perfumes\",\n  \"description\": \"Luxury and everyday fragrances.\",\n  \"image_url\": \"\",\n  \"is_active\": true,\n  \"sort_order\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "categories",
+                ""
+              ]
             },
-            "description": "slug is auto-generated from name if not provided.\nDeleting a category sets product.category to null — products are NOT deleted."
+            "description": "slug is auto-generated from name if not provided.\nDeleting a category sets product.category to null \u2014 products are NOT deleted."
           }
         },
         {
@@ -555,8 +806,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/:categoryId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ":categoryId", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "categories",
+                ":categoryId",
+                ""
+              ],
               "variable": [
                 {
                   "key": "categoryId",
@@ -570,16 +831,36 @@
           "name": "Update Category",
           "request": {
             "method": "PATCH",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Fragrances\",\n  \"is_active\": true,\n  \"sort_order\": 2\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/:categoryId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ":categoryId", ""],
-              "variable": [{"key": "categoryId", "value": ""}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "categories",
+                ":categoryId",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": ""
+                }
+              ]
             }
           }
         },
@@ -590,8 +871,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/:categoryId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ":categoryId", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "categories",
+                ":categoryId",
+                ""
+              ],
               "variable": [
                 {
                   "key": "categoryId",
@@ -614,8 +905,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/inventory/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "inventory", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "inventory",
+                ""
+              ],
               "query": [
                 {
                   "key": "low_stock",
@@ -631,15 +931,30 @@
           "name": "Adjust Stock",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"product_id\": \"<product-uuid>\",\n  \"quantity_delta\": 50,\n  \"reason\": \"Restocked from supplier\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/inventory/adjust/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "inventory", "adjust", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "inventory",
+                "adjust",
+                ""
+              ]
             },
             "description": "quantity_delta: positive to add stock, negative to remove.\nRaises 400 if adjustment would result in negative stock."
           }
@@ -651,8 +966,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/inventory/history/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "inventory", "history", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "inventory",
+                "history",
+                ""
+              ]
             }
           }
         }
@@ -669,8 +994,17 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/customers/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "customers", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "customers",
+                ""
+              ],
               "query": [
                 {
                   "key": "search",
@@ -689,8 +1023,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/customers/:customerId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "customers", ":customerId", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "customers",
+                ":customerId",
+                ""
+              ],
               "variable": [
                 {
                   "key": "customerId",
@@ -713,33 +1057,94 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "orders",
+                ""
+              ],
               "query": [
-                {"key": "status", "value": "", "disabled": true, "description": "new|confirmed|processing|ready|completed|cancelled"},
-                {"key": "payment_status", "value": "", "disabled": true, "description": "pending|paid|failed|refunded"},
-                {"key": "customer_id", "value": "", "disabled": true},
-                {"key": "search", "value": "", "disabled": true, "description": "Search by order number, customer name or phone"},
-                {"key": "page", "value": "1", "disabled": true},
-                {"key": "page_size", "value": "20", "disabled": true}
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true,
+                  "description": "new|confirmed|processing|ready|completed|cancelled"
+                },
+                {
+                  "key": "payment_status",
+                  "value": "",
+                  "disabled": true,
+                  "description": "pending|paid|failed|refunded"
+                },
+                {
+                  "key": "customer_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Search by order number, customer name or phone"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true
+                }
               ]
             }
           }
         },
         {
           "name": "Create Order (Dashboard)",
-          "event": [{"listen": "test", "script": {"exec": ["const json = pm.response.json();", "if (json.success && json.data) { pm.collectionVariables.set('orderId', json.data.id); }"], "type": "text/javascript"}}],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.success && json.data) { pm.collectionVariables.set('orderId', json.data.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"customer_name\": \"Jane Doe\",\n  \"customer_phone\": \"+254712345678\",\n  \"customer_email\": \"jane@example.com\",\n  \"delivery_address\": \"123 Moi Avenue, Nairobi\",\n  \"order_notes\": \"Please call before delivery.\",\n  \"payment_method\": \"mpesa\",\n  \"channel\": \"walk-in\",\n  \"discount\": \"0.00\",\n  \"items\": [\n    { \"product_id\": \"<product-uuid>\", \"quantity\": 2 }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "orders",
+                ""
+              ]
             },
             "description": "Creates an order from the dashboard. Customer is auto-created/upserted by phone number.\nTest script saves orderId to collection variables."
           }
@@ -751,8 +1156,18 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/{{orderId}}/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", "{{orderId}}", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "orders",
+                "{{orderId}}",
+                ""
+              ]
             }
           }
         },
@@ -760,32 +1175,64 @@
           "name": "Update Order Status",
           "request": {
             "method": "PATCH",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"confirmed\",\n  \"note\": \"Payment verified.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/{{orderId}}/status/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", "{{orderId}}", "status", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "orders",
+                "{{orderId}}",
+                "status",
+                ""
+              ]
             },
-            "description": "State machine: new→confirmed→processing→ready→completed. Any non-terminal state can go to cancelled."
+            "description": "State machine: new\u2192confirmed\u2192processing\u2192ready\u2192completed. Any non-terminal state can go to cancelled."
           }
         },
         {
           "name": "Update Payment Status",
           "request": {
             "method": "PATCH",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"payment_status\": \"paid\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/{{orderId}}/payment-status/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", "{{orderId}}", "payment-status", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "orders",
+                "{{orderId}}",
+                "payment-status",
+                ""
+              ]
             }
           }
         }
@@ -802,9 +1249,25 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/summary/?period=30d",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "summary", ""],
-              "query": [{"key": "period", "value": "30d", "description": "7d | 30d | 90d | all"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "finances",
+                "summary",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "7d | 30d | 90d | all"
+                }
+              ]
             },
             "description": "Computed P&L: revenue (completed orders), COGS, gross profit, expenses, net profit, margins."
           }
@@ -816,11 +1279,30 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/?period=30d",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "finances",
+                "expenses",
+                ""
+              ],
               "query": [
-                {"key": "period", "value": "30d", "description": "7d | 30d | 90d | all"},
-                {"key": "category", "value": "", "disabled": true, "description": "stock_purchases|staff_salaries|rent_utilities|marketing|delivery_costs|equipment|other"}
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "7d | 30d | 90d | all"
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "disabled": true,
+                  "description": "stock_purchases|staff_salaries|rent_utilities|marketing|delivery_costs|equipment|other"
+                }
               ]
             }
           }
@@ -829,15 +1311,30 @@
           "name": "Create Expense",
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"category\": \"stock_purchases\",\n  \"description\": \"Supplier payment — batch 12\",\n  \"amount\": \"15000.00\",\n  \"date\": \"2026-09-11\"\n}"
+              "raw": "{\n  \"category\": \"stock_purchases\",\n  \"description\": \"Supplier payment \u2014 batch 12\",\n  \"amount\": \"15000.00\",\n  \"date\": \"2026-09-11\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ""]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "finances",
+                "expenses",
+                ""
+              ]
             }
           }
         },
@@ -848,9 +1345,25 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/:expenseId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ":expenseId", ""],
-              "variable": [{"key": "expenseId", "value": ""}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "finances",
+                "expenses",
+                ":expenseId",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "expenseId",
+                  "value": ""
+                }
+              ]
             }
           }
         },
@@ -858,16 +1371,37 @@
           "name": "Update Expense",
           "request": {
             "method": "PATCH",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": \"18000.00\",\n  \"description\": \"Supplier payment — batch 12 (revised)\"\n}"
+              "raw": "{\n  \"amount\": \"18000.00\",\n  \"description\": \"Supplier payment \u2014 batch 12 (revised)\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/:expenseId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ":expenseId", ""],
-              "variable": [{"key": "expenseId", "value": ""}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "finances",
+                "expenses",
+                ":expenseId",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "expenseId",
+                  "value": ""
+                }
+              ]
             }
           }
         },
@@ -878,9 +1412,25 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/finances/expenses/:expenseId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "finances", "expenses", ":expenseId", ""],
-              "variable": [{"key": "expenseId", "value": ""}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "finances",
+                "expenses",
+                ":expenseId",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "expenseId",
+                  "value": ""
+                }
+              ]
             }
           }
         }
@@ -888,7 +1438,7 @@
     },
     {
       "name": "Analytics",
-      "description": "Business analytics — all computed from orders, products, customers. No separate data store.",
+      "description": "Business analytics \u2014 all computed from orders, products, customers. No separate data store.",
       "item": [
         {
           "name": "Analytics Summary (KPIs)",
@@ -897,9 +1447,25 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/summary/?period=30d",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "summary", ""],
-              "query": [{"key": "period", "value": "30d", "description": "7d | 30d | 90d"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "analytics",
+                "summary",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "7d | 30d | 90d"
+                }
+              ]
             },
             "description": "Returns: total_revenue, total_orders, total_customers, average_order_value + % change vs prior period for each."
           }
@@ -911,9 +1477,25 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/revenue/?period=30d",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "revenue", ""],
-              "query": [{"key": "period", "value": "30d", "description": "7d | 30d | 90d"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "analytics",
+                "revenue",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "7d | 30d | 90d"
+                }
+              ]
             },
             "description": "Daily { date, revenue, orders } for charting."
           }
@@ -925,11 +1507,28 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/top-products/?period=30d&limit=5",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "top-products", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "analytics",
+                "top-products",
+                ""
+              ],
               "query": [
-                {"key": "period", "value": "30d"},
-                {"key": "limit", "value": "5", "description": "Max 20"}
+                {
+                  "key": "period",
+                  "value": "30d"
+                },
+                {
+                  "key": "limit",
+                  "value": "5",
+                  "description": "Max 20"
+                }
               ]
             }
           }
@@ -941,9 +1540,24 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/categories/?period=30d",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "categories", ""],
-              "query": [{"key": "period", "value": "30d"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "analytics",
+                "categories",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
             }
           }
         },
@@ -954,9 +1568,24 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/analytics/customer-growth/?period=30d",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "analytics", "customer-growth", ""],
-              "query": [{"key": "period", "value": "30d"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "analytics",
+                "customer-growth",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d"
+                }
+              ]
             }
           }
         }
@@ -973,12 +1602,34 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/messages/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "messages", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "messages",
+                ""
+              ],
               "query": [
-                {"key": "status", "value": "unread", "disabled": true, "description": "unread | read | replied"},
-                {"key": "page", "value": "1", "disabled": true},
-                {"key": "page_size", "value": "20", "disabled": true}
+                {
+                  "key": "status",
+                  "value": "unread",
+                  "disabled": true,
+                  "description": "unread | read | replied"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true
+                }
               ]
             }
           }
@@ -990,9 +1641,24 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/messages/:messageId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "messages", ":messageId", ""],
-              "variable": [{"key": "messageId", "value": ""}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "messages",
+                ":messageId",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "messageId",
+                  "value": ""
+                }
+              ]
             },
             "description": "Opening a message automatically sets status to 'read' if it was 'unread'."
           }
@@ -1001,16 +1667,36 @@
           "name": "Update Message Status",
           "request": {
             "method": "PATCH",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"replied\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/messages/:messageId/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "messages", ":messageId", ""],
-              "variable": [{"key": "messageId", "value": ""}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "messages",
+                ":messageId",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "messageId",
+                  "value": ""
+                }
+              ]
             },
             "description": "Valid statuses: unread | read | replied"
           }
@@ -1019,19 +1705,35 @@
     },
     {
       "name": "Storefront (Public)",
-      "description": "Public storefront API. No authentication required.\nAll routes keyed by business slug.\nOnly published storefronts (is_published=true) are accessible — others return 404.",
+      "description": "Public storefront API. No authentication required.\nAll routes keyed by business slug.\nOnly published storefronts (is_published=true) are accessible \u2014 others return 404.",
       "item": [
         {
           "name": "Storefront Home",
           "request": {
-            "auth": {"type": "noauth"},
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/store/:slug/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "store", ":slug", ""],
-              "variable": [{"key": "slug", "value": "my-store", "description": "Business slug"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "store",
+                ":slug",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store",
+                  "description": "Business slug"
+                }
+              ]
             },
             "description": "Returns full business profile: name, theme, hero, contact, social links, storefront settings.\nUsed by the frontend to initialise the storefront context on page load."
           }
@@ -1039,20 +1741,59 @@
         {
           "name": "List Products",
           "request": {
-            "auth": {"type": "noauth"},
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/store/:slug/products/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "store", ":slug", "products", ""],
-              "variable": [{"key": "slug", "value": "my-store"}],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "store",
+                ":slug",
+                "products",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                }
+              ],
               "query": [
-                {"key": "category_id", "value": "", "disabled": true, "description": "Filter by category UUID"},
-                {"key": "search", "value": "", "disabled": true, "description": "Partial name match"},
-                {"key": "sort", "value": "featured", "disabled": true, "description": "featured|newest|price-asc|price-desc|best-selling"},
-                {"key": "page", "value": "1", "disabled": true},
-                {"key": "page_size", "value": "20", "disabled": true}
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter by category UUID"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Partial name match"
+                },
+                {
+                  "key": "sort",
+                  "value": "featured",
+                  "disabled": true,
+                  "description": "featured|newest|price-asc|price-desc|best-selling"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true
+                }
               ]
             },
             "description": "Returns active + available products only. costPrice is never included."
@@ -1061,16 +1802,35 @@
         {
           "name": "Get Product by Slug",
           "request": {
-            "auth": {"type": "noauth"},
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/store/:slug/products/:productSlug/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "store", ":slug", "products", ":productSlug", ""],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "store",
+                ":slug",
+                "products",
+                ":productSlug",
+                ""
+              ],
               "variable": [
-                {"key": "slug", "value": "my-store"},
-                {"key": "productSlug", "value": "velvet-rose-perfume", "description": "Product slug"}
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                },
+                {
+                  "key": "productSlug",
+                  "value": "velvet-rose-perfume",
+                  "description": "Product slug"
+                }
               ]
             }
           }
@@ -1078,14 +1838,30 @@
         {
           "name": "List Categories",
           "request": {
-            "auth": {"type": "noauth"},
+            "auth": {
+              "type": "noauth"
+            },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/store/:slug/categories/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "store", ":slug", "categories", ""],
-              "variable": [{"key": "slug", "value": "my-store"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "store",
+                ":slug",
+                "categories",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                }
+              ]
             },
             "description": "Returns active categories only for storefront filtering sidebar."
           }
@@ -1093,18 +1869,39 @@
         {
           "name": "Place Order",
           "request": {
-            "auth": {"type": "noauth"},
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"customer_name\": \"Jane Doe\",\n  \"customer_phone\": \"+254712345678\",\n  \"customer_email\": \"jane@example.com\",\n  \"delivery_address\": \"123 Moi Avenue, Nairobi\",\n  \"order_notes\": \"Please call before delivery.\",\n  \"payment_method\": \"mpesa\",\n  \"discount\": \"0.00\",\n  \"items\": [\n    { \"product_id\": \"<product-uuid>\", \"quantity\": 2 },\n    { \"product_id\": \"<product-uuid-2>\", \"quantity\": 1 }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/store/:slug/orders/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "store", ":slug", "orders", ""],
-              "variable": [{"key": "slug", "value": "my-store"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "store",
+                ":slug",
+                "orders",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                }
+              ]
             },
             "description": "Place a storefront order. Channel is automatically set to 'online'.\n\nOn success:\n- Order created (status=new)\n- Stock decremented atomically\n- Customer auto-created/upserted by phone\n- Owner notified by email (if enabled)\n\nDelivery fee: KSh 300 (free above KSh 10,000 subtotal)"
           }
@@ -1112,20 +1909,205 @@
         {
           "name": "Contact Form",
           "request": {
-            "auth": {"type": "noauth"},
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"sender_name\": \"Jane Doe\",\n  \"sender_phone\": \"+254712345678\",\n  \"sender_email\": \"jane@example.com\",\n  \"subject\": \"Bulk order enquiry\",\n  \"body\": \"Hi, do you offer bulk discounts for orders above 50 units?\",\n  \"channel\": \"contact_form\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/store/:slug/messages/",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "store", ":slug", "messages", ""],
-              "variable": [{"key": "slug", "value": "my-store"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "store",
+                ":slug",
+                "messages",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store"
+                }
+              ]
             },
             "description": "Submit a contact form message.\nRequires at least sender_phone OR sender_email.\nCreates a CustomerMessage (status=unread) and notifies the business owner."
+          }
+        }
+      ]
+    },
+    {
+      "name": "File Upload",
+      "description": "Image upload endpoint. Requires authentication.",
+      "item": [
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Image file (jpeg/png/webp/gif, max 10MB)"
+                },
+                {
+                  "key": "folder",
+                  "value": "products",
+                  "type": "text",
+                  "description": "Subfolder: products | logos | hero | uploads"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/upload/image/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "upload",
+                "image",
+                ""
+              ]
+            },
+            "description": "Upload an image and get back a URL to store in your model.\n\nReturns: { \"success\": true, \"data\": { \"url\": \"http://...\" } }\n\nDevelopment: files stored in media/ and served at /media/\nProduction: files stored in S3 when USE_S3=True"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pricing Plans",
+      "description": "Pricing plan information. Public endpoint \u2014 no auth required.",
+      "item": [
+        {
+          "name": "List Pricing Plans",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/plans/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "plans",
+                ""
+              ]
+            },
+            "description": "Returns all 3 plans: starter (free), business (KSh 3,499/mo), growth (KSh 7,999/mo).\nUsed by the marketing landing page and Settings \u2192 Billing tab."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Billing",
+      "description": "Business subscription management. STUB \u2014 no real payment processing yet.",
+      "item": [
+        {
+          "name": "Get Billing Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/billing/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "billing",
+                ""
+              ]
+            },
+            "description": "Returns current plan, monthly price, next billing date, status."
+          }
+        },
+        {
+          "name": "Upgrade Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"business\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/billing/upgrade/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "billing",
+                "upgrade",
+                ""
+              ]
+            },
+            "description": "STUB: updates Business.plan field. Valid plans: starter | business | growth"
+          }
+        },
+        {
+          "name": "Cancel Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Too expensive\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/billing/cancel/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "businesses",
+                "{{businessId}}",
+                "billing",
+                "cancel",
+                ""
+              ]
+            },
+            "description": "STUB: downgrades to starter plan immediately."
           }
         }
       ]

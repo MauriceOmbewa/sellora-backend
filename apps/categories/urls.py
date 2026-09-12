@@ -1,4 +1,17 @@
-from django.urls import path
+"""
+Category URL patterns.
+Mounted at /api/v1/businesses/{business_id}/categories/
 
-# Populated in the app's implementation step
-urlpatterns = []
+GET    /  — list
+POST   /  — create
+GET    /{category_id}/ — detail
+PATCH  /{category_id}/ — update
+DELETE /{category_id}/ — delete
+"""
+from django.urls import path
+from apps.categories.views import CategoryDetailView, CategoryListCreateView
+
+urlpatterns = [
+    path("", CategoryListCreateView.as_view(), name="category-list-create"),
+    path("<uuid:category_id>/", CategoryDetailView.as_view(), name="category-detail"),
+]

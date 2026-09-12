@@ -439,21 +439,17 @@
           "name": "Create Product",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Blue T-Shirt\",\n  \"slug\": \"blue-t-shirt\",\n  \"description\": \"A comfortable cotton t-shirt.\",\n  \"price\": \"1500.00\",\n  \"category\": null,\n  \"is_available\": true\n}"
+              "raw": "{\n  \"name\": \"Velvet Rose Perfume\",\n  \"description\": \"A rich floral scent with notes of rose and oud.\",\n  \"category_id\": null,\n  \"selling_price\": \"3500.00\",\n  \"cost_price\": \"1200.00\",\n  \"sale_price\": null,\n  \"sku\": \"VRP-001\",\n  \"stock_quantity\": 50,\n  \"low_stock_threshold\": 5,\n  \"status\": \"active\",\n  \"is_featured\": true,\n  \"is_available\": true,\n  \"images\": [],\n  \"badge\": \"new\",\n  \"tags\": [\"perfume\", \"floral\", \"luxury\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "products", ""]
-            }
+            },
+            "description": "Creates a product. slug is auto-generated from name if not provided.\ncategory_id: UUID of an existing category in this business, or null."
           }
         },
         {
@@ -479,27 +475,18 @@
           "name": "Update Product",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"price\": \"1800.00\",\n  \"is_available\": false\n}"
+              "raw": "{\n  \"selling_price\": \"3800.00\",\n  \"is_available\": true,\n  \"status\": \"active\",\n  \"badge\": \"best-seller\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/products/:productId/",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "products", ":productId", ""],
-              "variable": [
-                {
-                  "key": "productId",
-                  "value": ""
-                }
-              ]
-            }
+              "variable": [{"key": "productId", "value": ""}]
+            },
+            "description": "Partial update — only send the fields you want to change.\nDELETE soft-archives the product (status=archived, is_available=false)."
           }
         },
         {
@@ -542,21 +529,17 @@
           "name": "Create Category",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Clothing\",\n  \"slug\": \"clothing\",\n  \"description\": \"All clothing items.\"\n}"
+              "raw": "{\n  \"name\": \"Perfumes\",\n  \"description\": \"Luxury and everyday fragrances.\",\n  \"image_url\": \"\",\n  \"is_active\": true,\n  \"sort_order\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ""]
-            }
+            },
+            "description": "slug is auto-generated from name if not provided.\nDeleting a category sets product.category to null — products are NOT deleted."
           }
         },
         {
@@ -581,26 +564,16 @@
           "name": "Update Category",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Apparel\"\n}"
+              "raw": "{\n  \"name\": \"Fragrances\",\n  \"is_active\": true,\n  \"sort_order\": 2\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/categories/:categoryId/",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "categories", ":categoryId", ""],
-              "variable": [
-                {
-                  "key": "categoryId",
-                  "value": ""
-                }
-              ]
+              "variable": [{"key": "categoryId", "value": ""}]
             }
           }
         },

@@ -152,8 +152,8 @@ class GoogleCallbackView(APIView):
             # Deep link — the mobile app must register this URI scheme
             url = f"{settings.APP_DEEP_LINK_SCHEME}://auth/callback?{params}"
         else:
-            # Standard web redirect
-            url = f"{settings.FRONTEND_WEB_URL}/auth/callback?{params}"
+            # Redirect to the businesses page — frontend reads tokens from URL params
+            url = f"{settings.FRONTEND_WEB_URL}/businesses?{params}"
 
         return HttpResponseRedirect(url)
 

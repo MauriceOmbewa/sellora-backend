@@ -964,7 +964,7 @@
     },
     {
       "name": "Messages",
-      "description": "Customer inquiries received through the storefront contact form.",
+      "description": "Customer inquiries from the storefront contact form. Dashboard management.",
       "item": [
         {
           "name": "List Messages",
@@ -976,41 +976,43 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "messages", ""],
               "query": [
-                {
-                  "key": "is_read",
-                  "value": "false",
-                  "disabled": true,
-                  "description": "Filter by read status"
-                }
+                {"key": "status", "value": "unread", "disabled": true, "description": "unread | read | replied"},
+                {"key": "page", "value": "1", "disabled": true},
+                {"key": "page_size", "value": "20", "disabled": true}
               ]
             }
           }
         },
         {
-          "name": "Mark Message Read",
+          "name": "Get Message (auto-marks read)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/messages/:messageId/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "messages", ":messageId", ""],
+              "variable": [{"key": "messageId", "value": ""}]
+            },
+            "description": "Opening a message automatically sets status to 'read' if it was 'unread'."
+          }
+        },
+        {
+          "name": "Update Message Status",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"is_read\": true\n}"
+              "raw": "{\n  \"status\": \"replied\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/messages/:messageId/",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "messages", ":messageId", ""],
-              "variable": [
-                {
-                  "key": "messageId",
-                  "value": ""
-                }
-              ]
-            }
+              "variable": [{"key": "messageId", "value": ""}]
+            },
+            "description": "Valid statuses: unread | read | replied"
           }
         }
       ]
@@ -1165,7 +1167,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"message\": \"Do you do bulk orders?\"\n}"
+              "raw": "{\n  \"sender_name\": \"Jane Doe\",\n  \"sender_phone\": \"+254712345678\",\n  \"sender_email\": \"jane@example.com\",\n  \"subject\": \"Bulk order enquiry\",\n  \"body\": \"Hi, do you offer bulk discounts for orders above 50 units?\",\n  \"channel\": \"contact_form\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/store/:slug/messages/",

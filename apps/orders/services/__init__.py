@@ -190,7 +190,23 @@ def create_order(business, *, customer_name: str, customer_phone: str,
         "Order %s created for business %s — total KSh %s",
         order_number, business.id, total,
     )
+
+    # ── 9. Dispatch notification tasks (after transaction commits) ────────────
+    # Use on_commit to avoid firing tasks on rolled-back transactions
+    from django.db import connection
+    from django.db.transaction import on_commit
+    on_commit(lambda: _dispatch_new_order_notifications(str(order.id)))
+
     return order
+
+
+def _dispatch_new_order_notifications(order_id: str):
+    """Fire notification tasks after the order transaction commits."""
+    try:
+        from apps.notifications.tasks import send_new_order_email
+        send_new_order_email.delay(order_id)
+    except Exception as exc:
+        logger.warning("Failed to dispatch new order notifications: %s", exc)
 
 
 @transaction.atomic
@@ -244,8 +260,20 @@ def update_order_status(order: Order, new_status: str,
         from apps.businesses.signals import update_business_revenue
         update_business_revenue(order.business_id, -order.total)
 
+    # Notify customer of status change
+    from django.db.transaction import on_commit
+    on_commit(lambda: _dispatch_status_notification(str(order.id), new_status))
+
     logger.info("Order %s → %s", order.order_number, new_status)
     return order
+
+
+def _dispatch_status_notification(order_id: str, new_status: str):
+    try:
+        from apps.notifications.tasks import send_order_status_email
+        send_order_status_email.delay(order_id, new_status)
+    except Exception as exc:
+        logger.warning("Failed to dispatch order status notification: %s", exc)
 
 
 def _restore_stock(order: Order):

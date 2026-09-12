@@ -121,7 +121,25 @@ def adjust_stock(product: Product, quantity_delta: int, reason: str = "") -> Pro
         "Stock adjusted for product %s: %d → %d (delta=%d, reason=%s)",
         product.id, previous, new_quantity, quantity_delta, reason,
     )
+
+    # Dispatch low-stock alert if threshold breached
+    if new_quantity <= product.low_stock_threshold:
+        from django.db.transaction import on_commit
+        product_id_str = str(product.id)
+        on_commit(lambda: _dispatch_low_stock_alert(product_id_str))
+
     return product
+
+
+def _dispatch_low_stock_alert(product_id: str):
+    try:
+        from apps.notifications.tasks import send_low_stock_alert
+        send_low_stock_alert.delay(product_id)
+    except Exception as exc:
+        import logging
+        logging.getLogger("apps").warning(
+            "Failed to dispatch low stock alert: %s", exc
+        )
 
 
 @transaction.atomic

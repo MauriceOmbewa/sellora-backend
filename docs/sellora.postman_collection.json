@@ -28,6 +28,12 @@
       "value": "",
       "type": "string",
       "description": "UUID of the business you are working with. Set after creating or listing businesses."
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string",
+      "description": "UUID of an order. Set automatically by the Create Order test script."
     }
   ],
   "auth": {
@@ -625,20 +631,28 @@
           "name": "Adjust Stock",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"product\": \"<product-uuid>\",\n  \"quantity\": 50,\n  \"note\": \"Restocked from supplier\"\n}"
+              "raw": "{\n  \"product_id\": \"<product-uuid>\",\n  \"quantity_delta\": 50,\n  \"reason\": \"Restocked from supplier\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/inventory/adjust/",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "inventory", "adjust", ""]
+            },
+            "description": "quantity_delta: positive to add stock, negative to remove.\nRaises 400 if adjustment would result in negative stock."
+          }
+        },
+        {
+          "name": "Stock Adjustment History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/inventory/history/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "inventory", "history", ""]
             }
           }
         }
@@ -702,19 +716,32 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", "orders", ""],
               "query": [
-                {
-                  "key": "status",
-                  "value": "",
-                  "disabled": true,
-                  "description": "Filter by status: pending, confirmed, fulfilled, cancelled"
-                },
-                {
-                  "key": "search",
-                  "value": "",
-                  "disabled": true
-                }
+                {"key": "status", "value": "", "disabled": true, "description": "new|confirmed|processing|ready|completed|cancelled"},
+                {"key": "payment_status", "value": "", "disabled": true, "description": "pending|paid|failed|refunded"},
+                {"key": "customer_id", "value": "", "disabled": true},
+                {"key": "search", "value": "", "disabled": true, "description": "Search by order number, customer name or phone"},
+                {"key": "page", "value": "1", "disabled": true},
+                {"key": "page_size", "value": "20", "disabled": true}
               ]
             }
+          }
+        },
+        {
+          "name": "Create Order (Dashboard)",
+          "event": [{"listen": "test", "script": {"exec": ["const json = pm.response.json();", "if (json.success && json.data) { pm.collectionVariables.set('orderId', json.data.id); }"], "type": "text/javascript"}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_name\": \"Jane Doe\",\n  \"customer_phone\": \"+254712345678\",\n  \"customer_email\": \"jane@example.com\",\n  \"delivery_address\": \"123 Moi Avenue, Nairobi\",\n  \"order_notes\": \"Please call before delivery.\",\n  \"payment_method\": \"mpesa\",\n  \"channel\": \"walk-in\",\n  \"discount\": \"0.00\",\n  \"items\": [\n    { \"product_id\": \"<product-uuid>\", \"quantity\": 2 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", ""]
+            },
+            "description": "Creates an order from the dashboard. Customer is auto-created/upserted by phone number.\nTest script saves orderId to collection variables."
           }
         },
         {
@@ -723,15 +750,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/:orderId/",
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/{{orderId}}/",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", ":orderId", ""],
-              "variable": [
-                {
-                  "key": "orderId",
-                  "value": ""
-                }
-              ]
+              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", "{{orderId}}", ""]
             }
           }
         },
@@ -739,26 +760,32 @@
           "name": "Update Order Status",
           "request": {
             "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"confirmed\"\n}"
+              "raw": "{\n  \"status\": \"confirmed\",\n  \"note\": \"Payment verified.\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/:orderId/",
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/{{orderId}}/status/",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", ":orderId", ""],
-              "variable": [
-                {
-                  "key": "orderId",
-                  "value": ""
-                }
-              ]
+              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", "{{orderId}}", "status", ""]
+            },
+            "description": "State machine: new→confirmed→processing→ready→completed. Any non-terminal state can go to cancelled."
+          }
+        },
+        {
+          "name": "Update Payment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_status\": \"paid\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/orders/{{orderId}}/payment-status/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "orders", "{{orderId}}", "payment-status", ""]
             }
           }
         }

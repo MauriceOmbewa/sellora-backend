@@ -198,6 +198,16 @@ CORS_ALLOW_HEADERS = [
 GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID", default="")
 GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET", default="")
 
+# The exact URI registered in Google Cloud Console → OAuth → Authorized redirect URIs.
+# Must match character-for-character or Google will reject the callback.
+GOOGLE_REDIRECT_URI = env("GOOGLE_REDIRECT_URI", default="http://localhost:8000/api/v1/auth/google/callback/")
+
+# Where to send the user after a successful login, per origin.
+# Web: redirected to this URL with ?access=...&refresh=... query params.
+# App: redirected to this deep-link scheme with the same params.
+FRONTEND_WEB_URL = env("FRONTEND_WEB_URL", default="http://localhost:5173")
+APP_DEEP_LINK_SCHEME = env("APP_DEEP_LINK_SCHEME", default="sellora")
+
 # ─── Celery ───────────────────────────────────────────────────────────────────
 CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379/1")

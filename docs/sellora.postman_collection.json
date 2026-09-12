@@ -231,13 +231,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"My Store\",\n  \"slug\": \"my-store\",\n  \"description\": \"A great store.\",\n  \"currency\": \"KES\"\n}"
+              "raw": "{\n  \"name\": \"Maison Aura\",\n  \"category\": \"cosmetics\",\n  \"description\": \"Premium beauty and skincare products.\",\n  \"motto\": \"Beauty, redefined.\",\n  \"logo\": \"\",\n  \"contact\": {\n    \"phone\": \"+254712345678\",\n    \"whatsapp\": \"+254712345678\",\n    \"email\": \"hello@maisonaura.com\",\n    \"address\": \"123 Moi Avenue\",\n    \"city\": \"Nairobi\",\n    \"country\": \"Kenya\",\n    \"openingHours\": \"Mon–Fri: 8am – 6pm\"\n  },\n  \"theme\": {\n    \"primaryColor\": \"#7C3AED\",\n    \"primaryHover\": \"#6D28D9\",\n    \"accentColor\": \"#F59E0B\",\n    \"backgroundColor\": \"#FFFFFF\",\n    \"textColor\": \"#111827\"\n  },\n  \"hero\": {\n    \"heading\": \"Welcome to Maison Aura\",\n    \"subheading\": \"Beauty, redefined.\",\n    \"ctaText\": \"Shop Now\",\n    \"ctaSecondaryText\": \"Learn More\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/businesses/",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", ""]
-            }
+            },
+            "description": "Creates a new business (onboarding flow). Slug is auto-generated from the name. Plan defaults to 'starter'."
           }
         },
         {
@@ -283,6 +284,113 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "businesses", "{{businessId}}", ""]
             }
+          }
+        },
+        {
+          "name": "Get Business by Slug (Public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/by-slug/:slug/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "by-slug", ":slug", ""],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-store",
+                  "description": "Business slug (URL-safe name, e.g. maison-aura)"
+                }
+              ]
+            },
+            "description": "Resolves a business slug to its full profile. Public — no auth required.\n\nUsed by the frontend to initialise the storefront context on page load."
+          }
+        },
+        {
+          "name": "Get Business Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/settings/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "settings", ""]
+            },
+            "description": "Returns notification preferences and locale settings (currency, timezone, language)."
+          }
+        },
+        {
+          "name": "Update Business Settings",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email_on_new_order\": true,\n  \"email_on_low_stock\": true,\n  \"email_on_new_message\": true,\n  \"sms_on_new_order\": false,\n  \"currency\": \"KES\",\n  \"timezone\": \"Africa/Nairobi\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/settings/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "settings", ""]
+            },
+            "description": "All fields are optional — only send the ones you want to change."
+          }
+        },
+        {
+          "name": "Get Storefront Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/storefront/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "storefront", ""]
+            },
+            "description": "Returns storefront display configuration: featured products/categories, section toggles, publish state."
+          }
+        },
+        {
+          "name": "Save Storefront Settings",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"featured_product_ids\": [],\n  \"featured_category_ids\": [],\n  \"show_new_arrivals\": true,\n  \"show_best_sellers\": true,\n  \"show_testimonials\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/storefront/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "storefront", ""]
+            },
+            "description": "Saves storefront configuration changes without publishing.\n\nTo push changes live, call the Publish endpoint after saving."
+          }
+        },
+        {
+          "name": "Publish Storefront",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/storefront/publish/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "storefront", "publish", ""]
+            },
+            "description": "Makes the storefront publicly visible. Sets is_published=true and records last_published_at.\n\nBusiness must have status=active."
+          }
+        },
+        {
+          "name": "Unpublish Storefront",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/businesses/{{businessId}}/storefront/unpublish/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "businesses", "{{businessId}}", "storefront", "unpublish", ""]
+            },
+            "description": "Takes the storefront offline. Sets is_published=false."
           }
         }
       ]

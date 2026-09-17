@@ -3,7 +3,7 @@ API v1 URL configuration.
 Each app registers its own urlconf here.
 """
 from django.urls import path, include
-from apps.payments.urls import plans_urlpatterns, billing_urlpatterns
+from apps.payments.urls import plans_urlpatterns, billing_urlpatterns, mpesa_urlpatterns
 
 urlpatterns = [
     # ── Auth ──────────────────────────────────────────────────────────────────
@@ -48,4 +48,10 @@ urlpatterns = [
 
     # ── Public storefront API (no auth, keyed by slug) ────────────────────────
     path("store/", include("apps.businesses.storefront_urls")),
+
+    # ── Mpesa API (business-scoped) ───────────────────────────────────────────
+    path(
+    "payments/",
+    include((mpesa_urlpatterns, "payments"), namespace="mpesa"),
+),
 ]

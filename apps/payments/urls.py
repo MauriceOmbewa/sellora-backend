@@ -15,6 +15,7 @@ from apps.payments.views import (
     BillingUpgradeView,
     BusinessBillingView,
     PricingPlansView,
+    STKPushView,
 )
 
 # Plans — public, mounted at /api/v1/plans/ from api/v1/urls.py
@@ -27,4 +28,8 @@ billing_urlpatterns = [
     path("", BusinessBillingView.as_view(), name="billing-info"),
     path("upgrade/", BillingUpgradeView.as_view(), name="billing-upgrade"),
     path("cancel/", BillingCancelView.as_view(), name="billing-cancel"),
+]
+
+mpesa_urlpatterns = [
+    path("stk-push/", STKPushView.as_view(), name="stk-push"),
 ]

@@ -3,7 +3,10 @@ API v1 URL configuration.
 Each app registers its own urlconf here.
 """
 from django.urls import path, include
+
 from apps.payments.urls import plans_urlpatterns, billing_urlpatterns, mpesa_urlpatterns
+from apps.messages.views.whatsapp_webhook import WhatsAppWebhookView
+from apps.messages.urls import whatsapp_urlpatterns
 
 urlpatterns = [
     # ── Auth ──────────────────────────────────────────────────────────────────
@@ -37,13 +40,26 @@ urlpatterns = [
     # ── Analytics ─────────────────────────────────────────────────────────────
     path("businesses/<uuid:business_id>/analytics/", include("apps.analytics.urls")),
 
-    # ── Messages (customer inquiries) ─────────────────────────────────────────
+    # ── Messages (contact-form inquiries) ─────────────────────────────────────
     path("businesses/<uuid:business_id>/messages/", include("apps.messages.urls")),
+
+    # ── WhatsApp conversations + settings (business-scoped, authenticated) ────
+    path(
+        "businesses/<uuid:business_id>/whatsapp/",
+        include((whatsapp_urlpatterns, "whatsapp"), namespace="whatsapp"),
+    ),
 
     # ── Billing (business-scoped) ─────────────────────────────────────────────
     path(
         "businesses/<uuid:business_id>/billing/",
         include((billing_urlpatterns, "payments"), namespace="billing"),
+    ),
+
+    # ── WhatsApp webhook (public — AllowAny — Meta POSTs here) ────────────────
+    path(
+        "webhooks/whatsapp/",
+        WhatsAppWebhookView.as_view(),
+        name="whatsapp-webhook",
     ),
 
     # ── Public storefront API (no auth, keyed by slug) ────────────────────────

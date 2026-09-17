@@ -376,9 +376,15 @@ LOGGING = {
     },
 }
 
-#MPESA
+# ─── M-Pesa ───────────────────────────────────────────────────────────────────
 MPESA_CONSUMER_KEY = os.getenv("MPESA_CONSUMER_KEY")
 MPESA_CONSUMER_SECRET = os.getenv("MPESA_CONSUMER_SECRET")
 MPESA_SHORTCODE = os.getenv("MPESA_SHORTCODE")
 MPESA_PASSKEY = os.getenv("MPESA_PASSKEY")
 MPESA_CALLBACK_URL = os.getenv("MPESA_CALLBACK_URL")
+
+# ─── WhatsApp Business Cloud API ──────────────────────────────────────────────
+# The App Secret from your Meta App Dashboard (Settings → Basic → App Secret).
+# Used to verify the HMAC-SHA256 signature on incoming webhook POST requests.
+# Leave blank in development to skip signature verification.
+WHATSAPP_APP_SECRET = env("WHATSAPP_APP_SECRET", default="")

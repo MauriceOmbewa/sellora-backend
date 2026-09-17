@@ -1,4 +1,13 @@
 """Messages services."""
+from apps.messages.services.whatsapp import (  # noqa: F401 — re-export
+    process_inbound_webhook,
+    send_whatsapp_message,
+    save_whatsapp_settings,
+    get_whatsapp_settings,
+    disconnect_whatsapp,
+    verify_webhook_signature,
+)
+
 import logging
 from django.db import transaction
 from django.db.transaction import on_commit

@@ -1,5 +1,6 @@
 """Messages views — dashboard (authenticated)."""
 import logging
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
@@ -10,6 +11,18 @@ from apps.messages.services import update_message_status
 from common.exceptions import ResourceNotFound
 from common.pagination import StandardResultsPagination
 from common.responses import success_response
+
+# Re-export WhatsApp views so urls.py can import from one place
+from apps.messages.views.whatsapp_webhook import WhatsAppWebhookView  # noqa: F401
+from apps.messages.views.whatsapp_conversations import (  # noqa: F401
+    WhatsAppConversationListView,
+    WhatsAppConversationDetailView,
+    WhatsAppReplyView,
+    WhatsAppSettingsView,
+)
+from apps.messages.views.whatsapp_embedded_signup import (  # noqa: F401
+    WhatsAppEmbeddedSignupView,
+)
 
 logger = logging.getLogger("apps")
 
@@ -49,7 +62,6 @@ class MessageDetailView(APIView):
 
     def get(self, request, business_id, message_id):
         msg = self._get_or_404(message_id, request.business)
-        # Auto-mark as read on open
         if msg.status == "unread":
             msg = update_message_status(msg, "read")
         return success_response(data=CustomerMessageSerializer(msg).data)
@@ -61,5 +73,5 @@ class MessageDetailView(APIView):
         msg = update_message_status(msg, serializer.validated_data["status"])
         return success_response(
             data=CustomerMessageSerializer(msg).data,
-            message=f"Message marked as {msg.status}."
+            message=f"Message marked as {msg.status}.",
         )

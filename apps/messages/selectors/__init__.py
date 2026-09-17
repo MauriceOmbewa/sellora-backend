@@ -1,6 +1,13 @@
 """Messages selectors."""
 from django.db.models import QuerySet
+
 from apps.messages.models import CustomerMessage
+from apps.messages.selectors.whatsapp import (  # noqa: F401 — re-export
+    get_conversations_for_business,
+    get_conversation_by_id,
+    get_messages_for_conversation,
+    get_unread_conversation_count,
+)
 
 
 def get_messages_for_business(business, status: str = None) -> QuerySet:

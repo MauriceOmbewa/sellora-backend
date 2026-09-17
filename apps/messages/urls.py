@@ -29,6 +29,7 @@ from apps.messages.views import (
     WhatsAppConversationListView,
     WhatsAppReplyView,
     WhatsAppSettingsView,
+    WhatsAppEmbeddedSignupView,
 )
 
 urlpatterns = [
@@ -59,5 +60,11 @@ whatsapp_urlpatterns = [
         "settings/",
         WhatsAppSettingsView.as_view(),
         name="whatsapp-settings",
+    ),
+    # ── Embedded Signup — complete connection after Meta popup ─────────────────
+    path(
+        "connect/",
+        WhatsAppEmbeddedSignupView.as_view(),
+        name="whatsapp-connect",
     ),
 ]

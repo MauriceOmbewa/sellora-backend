@@ -388,3 +388,7 @@ MPESA_CALLBACK_URL = os.getenv("MPESA_CALLBACK_URL")
 # Used to verify the HMAC-SHA256 signature on incoming webhook POST requests.
 # Leave blank in development to skip signature verification.
 WHATSAPP_APP_SECRET = env("WHATSAPP_APP_SECRET", default="")
+
+# The App ID from your Meta App Dashboard (Settings → Basic → App ID).
+# Used by the Embedded Signup flow to exchange the short-lived code for a token.
+WHATSAPP_APP_ID = env("WHATSAPP_APP_ID", default="")

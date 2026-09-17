@@ -20,6 +20,9 @@ from apps.messages.views.whatsapp_conversations import (  # noqa: F401
     WhatsAppReplyView,
     WhatsAppSettingsView,
 )
+from apps.messages.views.whatsapp_embedded_signup import (  # noqa: F401
+    WhatsAppEmbeddedSignupView,
+)
 
 logger = logging.getLogger("apps")
 

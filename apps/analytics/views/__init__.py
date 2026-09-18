@@ -10,6 +10,7 @@ from apps.analytics.selectors import (
     get_analytics_summary,
     get_category_performance,
     get_customer_growth,
+    get_monthly_performance,
     get_revenue_time_series,
     get_top_products,
 )
@@ -116,3 +117,30 @@ class CustomerGrowthView(APIView):
         return success_response(
             data=CustomerGrowthSerializer(data, many=True).data
         )
+
+
+class MonthlyPerformanceView(APIView):
+    """
+    GET /api/v1/businesses/{business_id}/analytics/monthly/
+    ?year=2026   (defaults to current year)
+
+    Returns 12 rows — one per calendar month — with:
+      month, month_name, revenue, expenses, net_profit, orders
+    Always returns all 12 months; months with no data have zeros.
+    """
+    permission_classes = [IsAuthenticated, IsBusinessOwner]
+
+    def get(self, request, business_id):
+        from django.utils import timezone
+
+        try:
+            year = int(request.query_params.get("year", timezone.now().year))
+        except (ValueError, TypeError):
+            year = timezone.now().year
+
+        # Clamp to a sensible range
+        current_year = timezone.now().year
+        year = max(2020, min(year, current_year))
+
+        data = get_monthly_performance(request.business, year)
+        return success_response(data=data)

@@ -257,3 +257,73 @@ def get_customer_growth(business, period: str = "30d") -> list:
         }
         for row in rows
     ]
+
+
+def get_monthly_performance(business, year: int) -> list:
+    """
+    Return month-by-month revenue, expenses, and net profit for a given year.
+
+    Each entry:
+        { month: 1..12, month_name: 'Jan', revenue, expenses, net_profit, orders }
+
+    Revenue = sum of completed order totals in that calendar month.
+    Expenses = sum of expense records dated in that calendar month.
+    Net profit = revenue - expenses  (may be negative).
+    """
+    from apps.orders.models import Order
+    from apps.finances.models import Expense
+    from django.db.models import Sum, Count
+    from django.db.models.functions import TruncMonth
+    import calendar
+
+    month_names = ['Jan','Feb','Mar','Apr','May','Jun',
+                   'Jul','Aug','Sep','Oct','Nov','Dec']
+
+    # Revenue by month (completed orders only, keyed by month number)
+    order_rows = (
+        Order.objects
+        .filter(
+            business=business,
+            status='completed',
+            created_at__year=year,
+        )
+        .annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(
+            revenue=Sum('total'),
+            orders=Count('id'),
+        )
+    )
+    rev_map = {}
+    ord_map = {}
+    for row in order_rows:
+        m = row['month'].month
+        rev_map[m] = float(row['revenue'] or 0)
+        ord_map[m] = row['orders'] or 0
+
+    # Expenses by month (keyed by month number)
+    expense_rows = (
+        Expense.objects
+        .filter(
+            business=business,
+            date__year=year,
+        )
+        .values('date__month')
+        .annotate(expenses=Sum('amount'))
+    )
+    exp_map = {row['date__month']: float(row['expenses'] or 0) for row in expense_rows}
+
+    result = []
+    for m in range(1, 13):
+        revenue  = rev_map.get(m, 0.0)
+        expenses = exp_map.get(m, 0.0)
+        result.append({
+            'month':      m,
+            'month_name': month_names[m - 1],
+            'revenue':    revenue,
+            'expenses':   expenses,
+            'net_profit': revenue - expenses,
+            'orders':     ord_map.get(m, 0),
+        })
+
+    return result

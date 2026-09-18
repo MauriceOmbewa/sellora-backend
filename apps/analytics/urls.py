@@ -13,14 +13,16 @@ from apps.analytics.views import (
     AnalyticsSummaryView,
     CategoryPerformanceView,
     CustomerGrowthView,
+    MonthlyPerformanceView,
     RevenueTimeSeriesView,
     TopProductsView,
 )
 
 urlpatterns = [
-    path("summary/", AnalyticsSummaryView.as_view(), name="analytics-summary"),
-    path("revenue/", RevenueTimeSeriesView.as_view(), name="analytics-revenue"),
-    path("top-products/", TopProductsView.as_view(), name="analytics-top-products"),
-    path("categories/", CategoryPerformanceView.as_view(), name="analytics-categories"),
-    path("customer-growth/", CustomerGrowthView.as_view(), name="analytics-customer-growth"),
+    path("summary/",          AnalyticsSummaryView.as_view(),    name="analytics-summary"),
+    path("revenue/",          RevenueTimeSeriesView.as_view(),   name="analytics-revenue"),
+    path("top-products/",     TopProductsView.as_view(),         name="analytics-top-products"),
+    path("categories/",       CategoryPerformanceView.as_view(), name="analytics-categories"),
+    path("customer-growth/",  CustomerGrowthView.as_view(),      name="analytics-customer-growth"),
+    path("monthly/",          MonthlyPerformanceView.as_view(),  name="analytics-monthly"),
 ]

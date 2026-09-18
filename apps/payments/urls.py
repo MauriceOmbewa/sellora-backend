@@ -16,6 +16,8 @@ from apps.payments.views import (
     BusinessBillingView,
     PricingPlansView,
     STKPushView,
+    PochiPaymentView,
+    PaymentConfigurationView
 )
 
 # Plans — public, mounted at /api/v1/plans/ from api/v1/urls.py
@@ -32,4 +34,16 @@ billing_urlpatterns = [
 
 mpesa_urlpatterns = [
     path("stk-push/", STKPushView.as_view(), name="stk-push"),
+]
+
+pochi_urlpatterns = [
+    path("pochi/", PochiPaymentView.as_view(), name="pochi-payment"),
+]
+
+payment_configuration_urlpatterns = [
+    path(
+        "configuration/<uuid:business_id>/",
+        PaymentConfigurationView.as_view(),
+        name="payment-configuration",
+    ),
 ]

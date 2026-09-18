@@ -392,3 +392,9 @@ WHATSAPP_APP_SECRET = env("WHATSAPP_APP_SECRET", default="")
 # The App ID from your Meta App Dashboard (Settings → Basic → App ID).
 # Used by the Embedded Signup flow to exchange the short-lived code for a token.
 WHATSAPP_APP_ID = env("WHATSAPP_APP_ID", default="")
+
+# ─── Pochi M-Pesa ────────────────────────────────────────────────────────────
+MPESA_INITIATOR_NAME = os.getenv("MPESA_INITIATOR_NAME")
+MPESA_SECURITY_CREDENTIAL = os.getenv("MPESA_SECURITY_CREDENTIAL")
+MPESA_POCHI_TIMEOUT_URL = os.getenv("MPESA_POCHI_TIMEOUT_URL")
+MPESA_POCHI_RESULT_URL = os.getenv("MPESA_POCHI_RESULT_URL")

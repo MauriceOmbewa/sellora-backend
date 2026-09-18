@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from apps.payments.constants import PRICING_PLANS
+from .payment_configuration import PaymentConfigurationSerializer
 
 
 class PricingPlanSerializer(serializers.Serializer):

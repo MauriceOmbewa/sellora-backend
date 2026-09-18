@@ -14,10 +14,12 @@ from apps.finances.views import (
     ExpenseDetailView,
     ExpenseListCreateView,
     FinanceSummaryView,
+    IncomeListView,
 )
 
 urlpatterns = [
-    path("summary/", FinanceSummaryView.as_view(), name="finance-summary"),
-    path("expenses/", ExpenseListCreateView.as_view(), name="expense-list-create"),
-    path("expenses/<uuid:expense_id>/", ExpenseDetailView.as_view(), name="expense-detail"),
+    path("summary/",                     FinanceSummaryView.as_view(),     name="finance-summary"),
+    path("income/",                      IncomeListView.as_view(),          name="finance-income"),
+    path("expenses/",                    ExpenseListCreateView.as_view(),   name="expense-list-create"),
+    path("expenses/<uuid:expense_id>/",  ExpenseDetailView.as_view(),       name="expense-detail"),
 ]

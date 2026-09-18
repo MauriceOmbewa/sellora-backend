@@ -134,3 +134,86 @@ class ExpenseDetailView(APIView):
         expense = self._get_or_404(expense_id, request.business)
         delete_expense(expense)
         return no_content_response()
+
+
+class IncomeListView(APIView):
+    """
+    GET /api/v1/businesses/{business_id}/finances/income/
+
+    Returns a paginated list of income entries derived from completed, paid
+    orders.  Each entry mirrors the data a user needs for a ledger:
+      order_id, order_number, customer_name, payment_method, channel,
+      amount, date (order created_at), items_summary
+
+    Query params:
+      period      = 7d | 30d | 90d | all  (default: 30d)
+      search      = free-text (order number or customer name)
+      payment_method = mpesa | cash | card | bank_transfer | whatsapp
+      page        = int (default: 1)
+      page_size   = int (default: 20, max: 100)
+    """
+    permission_classes = [IsAuthenticated, IsBusinessOwner]
+
+    def get(self, request, business_id):
+        from apps.orders.models import Order
+        from django.db.models import Q
+        from common.pagination import StandardResultsPagination
+        import logging
+
+        logger = logging.getLogger("apps")
+
+        period         = request.query_params.get("period", "30d")
+        search         = request.query_params.get("search", "").strip()
+        payment_method = request.query_params.get("payment_method", "")
+
+        # Build date range
+        from apps.finances.selectors import get_period_dates
+        start, end = get_period_dates(period)
+
+        qs = Order.objects.filter(
+            business=request.business,
+            status="completed",
+            payment_status="paid",
+        ).select_related("customer").prefetch_related("items")
+
+        if start:
+            qs = qs.filter(created_at__gte=start, created_at__lte=end)
+        if search:
+            qs = qs.filter(
+                Q(order_number__icontains=search) |
+                Q(customer_name__icontains=search)
+            )
+        if payment_method:
+            qs = qs.filter(payment_method=payment_method)
+
+        qs = qs.order_by("-created_at")
+
+        paginator = StandardResultsPagination()
+        page      = paginator.paginate_queryset(qs, request)
+
+        def _item_summary(order):
+            items = order.items.all()
+            if not items:
+                return ""
+            parts = [f"{i.product_name} ×{i.quantity}" for i in items[:3]]
+            if items.count() > 3:
+                parts.append(f"+{items.count() - 3} more")
+            return ", ".join(parts)
+
+        data = [
+            {
+                "id":             str(order.id),
+                "order_id":       str(order.id),
+                "order_number":   order.order_number,
+                "customer_name":  order.customer_name,
+                "customer_phone": order.customer_phone,
+                "payment_method": order.payment_method,
+                "channel":        order.channel,
+                "amount":         str(order.total),
+                "date":           order.created_at.isoformat(),
+                "items_summary":  _item_summary(order),
+            }
+            for order in page
+        ]
+
+        return paginator.get_paginated_response(data)

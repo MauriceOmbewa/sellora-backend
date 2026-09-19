@@ -33,6 +33,12 @@ class BusinessSettings(BaseModel):
     timezone = models.CharField(max_length=50, default="Africa/Nairobi")
     language = models.CharField(max_length=10, default="en")
 
+    # ── Delivery / fulfilment ─────────────────────────────────────────────────
+    delivery_enabled          = models.BooleanField(default=True)
+    pickup_enabled            = models.BooleanField(default=True)
+    delivery_fee              = models.DecimalField(max_digits=10, decimal_places=2, default=300)
+    free_delivery_threshold   = models.DecimalField(max_digits=12, decimal_places=2, default=10000)
+
     class Meta:
         db_table = "businesses_settings"
         verbose_name = "Business Settings"

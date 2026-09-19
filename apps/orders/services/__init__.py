@@ -32,7 +32,8 @@ def create_order(business, *, customer_name: str, customer_phone: str,
                  order_notes: str = "", payment_method: str = "cash",
                  channel: str = "online", items: list,
                  discount: Decimal = Decimal("0"),
-                 custom_delivery_fee: Decimal = None) -> Order:
+                 custom_delivery_fee: Decimal = None,
+                 fulfillment_type: str = "delivery") -> Order:
     """
     Create a new order.
 
@@ -120,12 +121,19 @@ def create_order(business, *, customer_name: str, customer_phone: str,
     # ── 2. Calculate totals ───────────────────────────────────────────────────
     if custom_delivery_fee is not None:
         delivery_fee = Decimal(str(custom_delivery_fee))
-    elif channel == "walk-in":
-        delivery_fee = Decimal("0")
-    elif subtotal >= FREE_DELIVERY_THRESHOLD:
+    elif fulfillment_type == "pickup" or channel == "walk-in":
         delivery_fee = Decimal("0")
     else:
-        delivery_fee = Decimal(str(DELIVERY_FEE))
+        # Read per-business delivery settings, fall back to module constants
+        try:
+            s = business.settings
+            biz_fee       = Decimal(str(s.delivery_fee))
+            biz_threshold = Decimal(str(s.free_delivery_threshold))
+        except Exception:
+            biz_fee       = Decimal(str(DELIVERY_FEE))
+            biz_threshold = Decimal(str(FREE_DELIVERY_THRESHOLD))
+
+        delivery_fee = Decimal("0") if subtotal >= biz_threshold else biz_fee
 
     total = subtotal + delivery_fee - discount
 

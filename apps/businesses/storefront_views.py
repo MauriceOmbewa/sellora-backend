@@ -34,15 +34,34 @@ class StorefrontHomeView(StorefrontBusinessMixin, APIView):
     GET /api/v1/store/{slug}/
 
     Returns the full business profile for the storefront home page.
-    Includes theme, hero, contact, social links, storefront settings.
+    Includes theme, hero, contact, social links, storefront settings,
+    and delivery configuration.
     Does NOT include costPrice or any private fields.
     """
     permission_classes = [AllowAny]
 
     def get(self, request, slug):
         business = self.storefront_business
-        serializer = BusinessSerializer(business)
-        return success_response(data=serializer.data)
+        data = BusinessSerializer(business).data
+
+        # Append delivery settings so the frontend can use the real fee
+        try:
+            s = business.settings
+            data["delivery_settings"] = {
+                "delivery_enabled":        s.delivery_enabled,
+                "pickup_enabled":          s.pickup_enabled,
+                "delivery_fee":            str(s.delivery_fee),
+                "free_delivery_threshold": str(s.free_delivery_threshold),
+            }
+        except Exception:
+            data["delivery_settings"] = {
+                "delivery_enabled":        True,
+                "pickup_enabled":          True,
+                "delivery_fee":            "300",
+                "free_delivery_threshold": "10000",
+            }
+
+        return success_response(data=data)
 
 
 class StorefrontProductListView(StorefrontBusinessMixin, APIView):
@@ -137,6 +156,23 @@ class StorefrontOrderCreateView(StorefrontBusinessMixin, APIView):
         # Storefront orders are always 'online' channel
         data["channel"] = "online"
 
+        # fulfillment_type from request: 'delivery' (default) or 'pickup'
+        fulfillment_type = request.data.get("fulfillment_type", "delivery")
+        is_pickup = fulfillment_type == "pickup"
+
+        # For pickup orders, delivery fee is zero regardless of subtotal.
+        # For delivery, let create_order read from business settings.
+        custom_delivery_fee = Decimal("0") if is_pickup else None
+
+        # If business has per-business settings, pass them as custom_delivery_fee
+        # only if this is a delivery order (pickup already handled above).
+        if not is_pickup:
+            try:
+                s = business.settings
+                custom_delivery_fee = None   # let create_order use settings
+            except Exception:
+                pass
+
         try:
             order = create_order(
                 business,
@@ -149,6 +185,8 @@ class StorefrontOrderCreateView(StorefrontBusinessMixin, APIView):
                 channel="online",
                 items=data["items"],
                 discount=data.get("discount", Decimal("0")),
+                custom_delivery_fee=custom_delivery_fee,
+                fulfillment_type=fulfillment_type,
             )
         except ValueError as exc:
             from rest_framework.exceptions import ValidationError

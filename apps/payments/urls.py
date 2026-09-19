@@ -2,12 +2,18 @@
 Payments / Billing URL patterns.
 
 Public:
-  GET    /api/v1/plans/                         — Pricing plans list
+  GET    /api/v1/plans/                               — Pricing plans list
+
+M-Pesa (public — storefront checkout):
+  POST   /api/v1/payments/mpesa/initiate/             — Initiate STK Push (new flow)
+  POST   /api/v1/payments/mpesa/callback/             — Safaricom async callback
+  GET    /api/v1/payments/mpesa/status/<id>/          — Poll payment status
+  POST   /api/v1/payments/stk-push/                   — Legacy STK push (order-based)
 
 Business-scoped (authenticated):
-  GET    /api/v1/businesses/{id}/billing/        — Current billing info
-  POST   /api/v1/businesses/{id}/billing/upgrade/  — Upgrade plan (stub)
-  POST   /api/v1/businesses/{id}/billing/cancel/   — Cancel subscription (stub)
+  GET    /api/v1/businesses/{id}/billing/             — Current billing info
+  POST   /api/v1/businesses/{id}/billing/upgrade/     — Upgrade plan (stub)
+  POST   /api/v1/businesses/{id}/billing/cancel/      — Cancel subscription (stub)
 """
 from django.urls import path
 from apps.payments.views import (
@@ -15,9 +21,12 @@ from apps.payments.views import (
     BillingUpgradeView,
     BusinessBillingView,
     PricingPlansView,
+    STKInitiateView,
     STKPushView,
+    MpesaCallbackView,
+    MpesaStatusView,
     PochiPaymentView,
-    PaymentConfigurationView
+    PaymentConfigurationView,
 )
 
 # Plans — public, mounted at /api/v1/plans/ from api/v1/urls.py
@@ -32,8 +41,13 @@ billing_urlpatterns = [
     path("cancel/", BillingCancelView.as_view(), name="billing-cancel"),
 ]
 
+# New M-Pesa flow (storefront checkout)
 mpesa_urlpatterns = [
-    path("stk-push/", STKPushView.as_view(), name="stk-push"),
+    path("mpesa/initiate/",                STKInitiateView.as_view(),   name="mpesa-initiate"),
+    path("mpesa/callback/",                MpesaCallbackView.as_view(), name="mpesa-callback"),
+    path("mpesa/status/<str:checkout_request_id>/", MpesaStatusView.as_view(), name="mpesa-status"),
+    # Legacy endpoint kept for backward compatibility
+    path("stk-push/",                      STKPushView.as_view(),       name="stk-push"),
 ]
 
 pochi_urlpatterns = [

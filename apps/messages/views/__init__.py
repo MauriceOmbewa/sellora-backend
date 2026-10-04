@@ -24,6 +24,15 @@ from apps.messages.views.whatsapp_embedded_signup import (  # noqa: F401
     WhatsAppEmbeddedSignupView,
 )
 
+#Live Chart
+from apps.messages.views.chat import (
+    ChatVisitorView,
+    ChatConversationView,
+    ChatConversationMessagesView,
+    BusinessChatConversationListView,
+    BusinessChatConversationDetailView,
+)
+
 logger = logging.getLogger("apps")
 
 

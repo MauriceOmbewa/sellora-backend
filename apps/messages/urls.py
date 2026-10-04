@@ -30,6 +30,11 @@ from apps.messages.views import (
     WhatsAppReplyView,
     WhatsAppSettingsView,
     WhatsAppEmbeddedSignupView,
+    ChatVisitorView,
+    ChatConversationView,
+    ChatConversationMessagesView,
+    BusinessChatConversationListView,
+    BusinessChatConversationDetailView,
 )
 
 urlpatterns = [
@@ -66,5 +71,45 @@ whatsapp_urlpatterns = [
         "connect/",
         WhatsAppEmbeddedSignupView.as_view(),
         name="whatsapp-connect",
+    ),
+]
+
+chat_storefront_urlpatterns = [
+    # ── Visitor identity ───────────────────────────────────────────────────────
+    path(
+        "visitor/",
+        ChatVisitorView.as_view(),
+        name="chat-visitor",
+    ),
+
+    # ── Visitor conversation ───────────────────────────────────────────────────
+    path(
+        "conversation/",
+        ChatConversationView.as_view(),
+        name="chat-conversation",
+    ),
+
+    # ── Visitor conversation messages ──────────────────────────────────────────
+    path(
+        "conversation/<uuid:conversation_id>/messages/",
+        ChatConversationMessagesView.as_view(),
+        name="chat-conversation-messages",
+    ),
+]
+
+
+chat_business_urlpatterns = [
+    # ── Business conversation list ─────────────────────────────────────────────
+    path(
+        "conversations/",
+        BusinessChatConversationListView.as_view(),
+        name="business-chat-conversation-list",
+    ),
+
+    # ── Business conversation detail ───────────────────────────────────────────
+    path(
+        "conversations/<uuid:conversation_id>/",
+        BusinessChatConversationDetailView.as_view(),
+        name="business-chat-conversation-detail",
     ),
 ]

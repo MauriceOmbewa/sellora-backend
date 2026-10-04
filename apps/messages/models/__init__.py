@@ -5,6 +5,9 @@ from .whatsapp_message import (
     MESSAGE_DIRECTION_CHOICES,
     MESSAGE_TYPE_CHOICES,
 )
+from .chat_conversation import ChatConversation 
+from .chat_message import ChatMessage
+from .chat_visitor import ChatVisitor
 
 __all__ = [
     "CustomerMessage",
@@ -15,4 +18,7 @@ __all__ = [
     "WhatsAppMessage",
     "MESSAGE_DIRECTION_CHOICES",
     "MESSAGE_TYPE_CHOICES",
+    "ChatConversation",
+    "ChatMessage",
+    "ChatVisitor"
 ]

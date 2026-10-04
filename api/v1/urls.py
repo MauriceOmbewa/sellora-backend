@@ -5,7 +5,11 @@ Each app registers its own urlconf here.
 
 from django.urls import include, path
 
-from apps.messages.urls import whatsapp_urlpatterns
+from apps.messages.urls import (
+    whatsapp_urlpatterns,
+    chat_business_urlpatterns,
+    chat_storefront_urlpatterns,
+)
 from apps.messages.views.whatsapp_webhook import WhatsAppWebhookView
 from apps.payments.urls import (
     billing_urlpatterns,
@@ -84,6 +88,15 @@ urlpatterns = [
         include("apps.messages.urls"),
     ),
 
+    # ── Live Chat (business dashboard, authenticated) ─────────────────────────
+    path(
+        "businesses/<uuid:business_id>/chat/",
+        include(
+            (chat_business_urlpatterns, "chat"),
+            namespace="business-chat",
+        ),
+    ),
+
     # ── WhatsApp conversations + settings (business-scoped, authenticated) ────
     path(
         "businesses/<uuid:business_id>/whatsapp/",
@@ -113,6 +126,15 @@ urlpatterns = [
     path(
         "store/",
         include("apps.businesses.storefront_urls"),
+    ),
+
+    # ── Live Chat (storefront visitor, no authentication) ─────────────────────
+    path(
+        "store/<slug:slug>/chat/",
+        include(
+            (chat_storefront_urlpatterns, "chat"),
+            namespace="storefront-chat",
+        ),
     ),
 
     # ── M-Pesa API (business-scoped) ──────────────────────────────────────────

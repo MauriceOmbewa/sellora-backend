@@ -37,3 +37,8 @@ boto3==1.35.71
 
 # Utilities
 python-dateutil==2.9.0.post0
+
+#Django Channels
+channels==4.3.2
+channels_redis==4.3.0
+daphne==4.2.3

@@ -128,6 +128,12 @@ urlpatterns = [
         include("apps.businesses.storefront_urls"),
     ),
 
+    # ── Public marketplace API (no auth, cross-vendor discovery) ──────────────
+    path(
+        "marketplace/",
+        include("apps.businesses.marketplace_urls"),
+    ),
+
     # ── Live Chat (storefront visitor, no authentication) ─────────────────────
     path(
         "store/<slug:slug>/chat/",

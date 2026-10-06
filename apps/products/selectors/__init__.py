@@ -78,3 +78,85 @@ def product_slug_exists(slug: str, business, exclude_id=None) -> bool:
     if exclude_id:
         qs = qs.exclude(id=exclude_id)
     return qs.exists()
+
+
+def get_marketplace_products(
+    search: str = None,
+    sort: str = None,
+    category: str = None,
+    featured: bool = False,
+) -> QuerySet:
+    """
+    Return public products across ALL active, published businesses.
+
+    Used by GET /api/v1/marketplace/products/
+
+    Filters:
+      - Business must be active + storefront published
+      - Product must be active + available
+      - Optional: search by name, filter by category name, featured only
+
+    Sort options mirror the per-store sort map.
+    """
+    from apps.businesses.models import StorefrontSettings
+
+    # Subquery: IDs of businesses whose storefronts are published
+    published_business_ids = StorefrontSettings.objects.filter(
+        is_published=True
+    ).values_list("business_id", flat=True)
+
+    qs = (
+        Product.objects
+        .filter(
+            business__status="active",
+            business__id__in=published_business_ids,
+            status="active",
+            is_available=True,
+        )
+        .select_related("category", "business")
+    )
+
+    if search:
+        qs = qs.filter(name__icontains=search)
+
+    if category:
+        qs = qs.filter(category__name__icontains=category)
+
+    if featured:
+        qs = qs.filter(is_featured=True)
+
+    sort_map = {
+        "newest":       "-created_at",
+        "price-asc":    "selling_price",
+        "price-desc":   "-selling_price",
+        "best-selling": "-total_sold",
+        "featured":     "-is_featured",
+    }
+    qs = qs.order_by(sort_map.get(sort or "featured", "-is_featured"), "-created_at")
+    return qs
+
+
+def get_marketplace_product_by_id(product_id) -> "Product | None":
+    """
+    Return a single marketplace product by UUID.
+
+    Enforces the same visibility rules as get_marketplace_products.
+    """
+    from apps.businesses.models import StorefrontSettings
+
+    published_business_ids = StorefrontSettings.objects.filter(
+        is_published=True
+    ).values_list("business_id", flat=True)
+
+    return (
+        Product.objects
+        .filter(
+            id=product_id,
+            business__status="active",
+            business__id__in=published_business_ids,
+            status="active",
+            is_available=True,
+        )
+        .select_related("category", "business")
+        .first()
+    )

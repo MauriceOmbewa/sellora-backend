@@ -1,6 +1,7 @@
 from .product import (
     ProductSerializer,
     ProductPublicSerializer,
+    MarketplaceProductSerializer,
     ProductCreateSerializer,
     ProductUpdateSerializer,
 )
@@ -8,6 +9,7 @@ from .product import (
 __all__ = [
     "ProductSerializer",
     "ProductPublicSerializer",
+    "MarketplaceProductSerializer",
     "ProductCreateSerializer",
     "ProductUpdateSerializer",
 ]

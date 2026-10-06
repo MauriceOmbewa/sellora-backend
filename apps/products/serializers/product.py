@@ -80,6 +80,7 @@ class ProductPublicSerializer(serializers.ModelSerializer):
     display_price = serializers.DecimalField(
         max_digits=10, decimal_places=2, read_only=True
     )
+    stock_status = serializers.CharField(read_only=True)
 
     class Meta:
         model = Product
@@ -104,9 +105,39 @@ class ProductPublicSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
-    @property
-    def stock_status(self):
-        return self.instance.stock_status if self.instance else None
+
+class MarketplaceProductSerializer(ProductPublicSerializer):
+    """
+    Cross-vendor marketplace product representation.
+
+    Extends ProductPublicSerializer with vendor identity fields so the
+    frontend can display the store name, link back to the storefront, and
+    apply the store's brand colour — without exposing any private data.
+
+    Used exclusively by the public /api/v1/marketplace/products/ endpoints.
+    """
+    business_id = serializers.UUIDField(source="business.id", read_only=True)
+    business_name = serializers.CharField(source="business.name", read_only=True)
+    business_slug = serializers.CharField(source="business.slug", read_only=True)
+    business_logo = serializers.SerializerMethodField()
+    business_primary_color = serializers.SerializerMethodField()
+
+    class Meta(ProductPublicSerializer.Meta):
+        fields = ProductPublicSerializer.Meta.fields + [
+            "business_id",
+            "business_name",
+            "business_slug",
+            "business_logo",
+            "business_primary_color",
+        ]
+
+    def get_business_logo(self, obj) -> str | None:
+        logo = obj.business.logo
+        return logo if logo else None
+
+    def get_business_primary_color(self, obj) -> str:
+        theme = obj.business.theme or {}
+        return theme.get("primaryColor", "#C79A3D")
 
 
 # ─── Input serializers ────────────────────────────────────────────────────────

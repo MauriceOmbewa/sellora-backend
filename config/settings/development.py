@@ -39,3 +39,12 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     }
 }
+
+# ─── In-memory channel layer for dev (no Redis needed) ───────────────────────
+# InMemoryChannelLayer is built into django-channels — zero dependencies,
+# works perfectly for local development. Switch to RedisChannelLayer in prod.
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}

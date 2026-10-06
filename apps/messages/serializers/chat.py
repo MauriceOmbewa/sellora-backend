@@ -14,6 +14,7 @@ class ChatVisitorSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "email",
+            "phone",
             "created_at",
         ]
         read_only_fields = [

@@ -30,6 +30,13 @@ class ChatVisitor(BaseModel):
         default="",
     )
 
+    phone = models.CharField(
+        max_length=30,
+        blank=True,
+        default="",
+        help_text="Optional phone number supplied by the visitor during chat intro.",
+    )
+
     class Meta:
         db_table = "messages_chat_visitor"
         verbose_name = "Chat Visitor"

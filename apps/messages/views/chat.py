@@ -53,6 +53,7 @@ class ChatVisitorView(StorefrontBusinessMixin, APIView):
             business=business,
             name=request.data.get("name", ""),
             email=request.data.get("email", ""),
+            phone=request.data.get("phone", ""),
         )
 
         return created_response(

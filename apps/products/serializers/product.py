@@ -18,7 +18,7 @@ from apps.products.selectors import product_slug_exists
 class ProductSerializer(serializers.ModelSerializer):
     """
     Full product representation for authenticated dashboard views.
-    Includes cost_price and all status values.
+    Includes cost_price, marketplace_visible, and all status values.
     """
     category_id = serializers.UUIDField(
         source="category.id", read_only=True, allow_null=True
@@ -53,6 +53,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "status",
             "is_featured",
             "is_available",
+            "marketplace_visible",
             "badge",
             "tags",
             "total_sold",
@@ -160,6 +161,7 @@ class ProductCreateSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=PRODUCT_STATUS_CHOICES, required=False, default="draft")
     is_featured = serializers.BooleanField(required=False, default=False)
     is_available = serializers.BooleanField(required=False, default=True)
+    marketplace_visible = serializers.BooleanField(required=False, default=True)
     images = serializers.ListField(
         child=serializers.URLField(), required=False, default=list
     )
@@ -204,6 +206,7 @@ class ProductUpdateSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=PRODUCT_STATUS_CHOICES, required=False)
     is_featured = serializers.BooleanField(required=False)
     is_available = serializers.BooleanField(required=False)
+    marketplace_visible = serializers.BooleanField(required=False)
     images = serializers.ListField(child=serializers.URLField(), required=False)
     badge = serializers.ChoiceField(
         choices=PRODUCT_BADGE_CHOICES + [("", "None")],

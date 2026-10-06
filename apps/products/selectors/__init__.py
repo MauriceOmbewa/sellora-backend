@@ -113,6 +113,7 @@ def get_marketplace_products(
             business__id__in=published_business_ids,
             status="active",
             is_available=True,
+            marketplace_visible=True,
         )
         .select_related("category", "business")
     )
@@ -158,6 +159,7 @@ def get_marketplace_product_by_id(product_id) -> "Product | None":
             business__id__in=published_business_ids,
             status="active",
             is_available=True,
+            marketplace_visible=True,
         )
         .select_related("category", "business")
         .first()

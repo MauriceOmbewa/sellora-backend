@@ -68,6 +68,16 @@ class Product(BaseModel):
         db_index=True,
         help_text="Toggles storefront visibility without changing status.",
     )
+    marketplace_visible = models.BooleanField(
+        default=True,
+        db_index=True,
+        help_text=(
+            "When True, this product appears in the cross-vendor Sellora marketplace "
+            "(/api/v1/marketplace/products/), subject to the business-level "
+            "show_in_marketplace flag also being True. "
+            "Set to False to keep the product on the individual storefront only."
+        ),
+    )
 
     # ── Merchandising ─────────────────────────────────────────────────────────
     badge = models.CharField(

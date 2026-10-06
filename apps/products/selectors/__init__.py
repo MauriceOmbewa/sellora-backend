@@ -102,7 +102,8 @@ def get_marketplace_products(
 
     # Subquery: IDs of businesses whose storefronts are published
     published_business_ids = StorefrontSettings.objects.filter(
-        is_published=True
+        is_published=True,
+        show_in_marketplace=True,
     ).values_list("business_id", flat=True)
 
     qs = (
@@ -145,7 +146,8 @@ def get_marketplace_product_by_id(product_id) -> "Product | None":
     from apps.businesses.models import StorefrontSettings
 
     published_business_ids = StorefrontSettings.objects.filter(
-        is_published=True
+        is_published=True,
+        show_in_marketplace=True,
     ).values_list("business_id", flat=True)
 
     return (

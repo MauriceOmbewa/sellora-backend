@@ -35,6 +35,13 @@ class StorefrontSettings(BaseModel):
     show_best_sellers = models.BooleanField(default=True)
     show_testimonials = models.BooleanField(default=False)
 
+    # ── Marketplace visibility ────────────────────────────────────────────────
+    # When True (default), products from this store appear in the cross-vendor
+    # marketplace (/api/v1/marketplace/products/).
+    # Vendors can turn this off to keep their products out of the shared feed
+    # while still keeping their own storefront live.
+    show_in_marketplace = models.BooleanField(default=True, db_index=True)
+
     # ── Publish state ─────────────────────────────────────────────────────────
     is_published = models.BooleanField(default=False, db_index=True)
     last_published_at = models.DateTimeField(null=True, blank=True)

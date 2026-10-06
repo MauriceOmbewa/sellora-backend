@@ -13,6 +13,9 @@ class StorefrontSettingsSerializer(serializers.ModelSerializer):
 
     featured_product_ids and featured_category_ids are stored as UUID arrays.
     The frontend manages the list; the backend just stores and returns it.
+
+    show_in_marketplace controls cross-vendor marketplace visibility.
+    It defaults to True and can be toggled by the vendor at any time.
     """
 
     class Meta:
@@ -23,6 +26,7 @@ class StorefrontSettingsSerializer(serializers.ModelSerializer):
             "show_new_arrivals",
             "show_best_sellers",
             "show_testimonials",
+            "show_in_marketplace",
             "is_published",
             "last_published_at",
             "updated_at",
@@ -44,9 +48,10 @@ class StorefrontSettingsUpdateSerializer(serializers.Serializer):
         child=serializers.UUIDField(),
         required=False,
     )
-    show_new_arrivals = serializers.BooleanField(required=False)
-    show_best_sellers = serializers.BooleanField(required=False)
-    show_testimonials = serializers.BooleanField(required=False)
+    show_new_arrivals    = serializers.BooleanField(required=False)
+    show_best_sellers    = serializers.BooleanField(required=False)
+    show_testimonials    = serializers.BooleanField(required=False)
+    show_in_marketplace  = serializers.BooleanField(required=False)
 
     def validate_featured_product_ids(self, value):
         # Store as strings so JSON serialization is clean

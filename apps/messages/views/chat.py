@@ -205,7 +205,8 @@ class BusinessChatConversationListView(APIView):
     GET /api/v1/businesses/{business_id}/chat/conversations/
 
     Returns the conversations belonging to the authenticated
-    business owner.
+    business owner. Each conversation includes unread_count
+    so the frontend can show badge counts without fetching messages.
     """
 
     permission_classes = [IsAuthenticated]
@@ -225,15 +226,48 @@ class BusinessChatConversationListView(APIView):
             ChatConversation.objects
             .filter(business=business)
             .select_related("visitor")
+            .prefetch_related("messages")   # needed for unread_count SerializerMethodField
             .order_by("-last_message_at", "-created_at")
         )
 
         return success_response(
-            data=ChatConversationSerializer(
-                conversations,
-                many=True,
-            ).data
+            data=ChatConversationSerializer(conversations, many=True).data
         )
+
+
+class BusinessChatMarkReadView(APIView):
+    """
+    POST /api/v1/businesses/{business_id}/chat/conversations/{conversation_id}/read/
+
+    Marks all unread visitor messages in the conversation as read.
+    Called when the business admin opens a conversation.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, business_id, conversation_id):
+        from apps.businesses.models import Business
+
+        try:
+            business = Business.objects.get(id=business_id, owner=request.user)
+        except Business.DoesNotExist:
+            raise ResourceNotFound("Business not found.")
+
+        try:
+            conversation = ChatConversation.objects.get(
+                id=conversation_id,
+                business=business,
+            )
+        except ChatConversation.DoesNotExist:
+            raise ResourceNotFound("Conversation not found.")
+
+        updated = ChatMessage.objects.filter(
+            conversation=conversation,
+            sender_type="visitor",
+            is_read=False,
+        ).update(is_read=True)
+
+        return success_response(data={"marked_read": updated})
 
 
 class BusinessChatConversationDetailView(APIView):

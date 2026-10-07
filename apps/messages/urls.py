@@ -35,6 +35,7 @@ from apps.messages.views import (
     ChatConversationMessagesView,
     BusinessChatConversationListView,
     BusinessChatConversationDetailView,
+    BusinessChatMarkReadView,
 )
 
 urlpatterns = [
@@ -111,5 +112,12 @@ chat_business_urlpatterns = [
         "conversations/<uuid:conversation_id>/",
         BusinessChatConversationDetailView.as_view(),
         name="business-chat-conversation-detail",
+    ),
+
+    # ── Mark all visitor messages in a conversation as read ────────────────────
+    path(
+        "conversations/<uuid:conversation_id>/read/",
+        BusinessChatMarkReadView.as_view(),
+        name="business-chat-mark-read",
     ),
 ]

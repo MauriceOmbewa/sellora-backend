@@ -43,6 +43,9 @@ class ChatMessageSerializer(serializers.ModelSerializer):
 
 class ChatConversationSerializer(serializers.ModelSerializer):
     visitor = ChatVisitorSerializer(read_only=True)
+    # Number of unread visitor messages — used by the admin conversation list
+    # to show badge counts without fetching full message history.
+    unread_count = serializers.SerializerMethodField()
 
     class Meta:
         model = ChatConversation
@@ -50,6 +53,7 @@ class ChatConversationSerializer(serializers.ModelSerializer):
             "id",
             "visitor",
             "status",
+            "unread_count",
             "last_message_at",
             "created_at",
         ]
@@ -57,9 +61,13 @@ class ChatConversationSerializer(serializers.ModelSerializer):
             "id",
             "visitor",
             "status",
+            "unread_count",
             "last_message_at",
             "created_at",
         ]
+
+    def get_unread_count(self, obj) -> int:
+        return obj.messages.filter(sender_type="visitor", is_read=False).count()
 
 
 class ChatConversationDetailSerializer(ChatConversationSerializer):
